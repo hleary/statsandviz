@@ -3,7 +3,7 @@
 # Status: In Progress
 # Heatherlee Leary
 # hleary@arizona.edu
-# 2023-01-16
+
 
 
 #### OBJECTIVES ##########################################################################################################
@@ -22,6 +22,7 @@
 Nt_func <- function(r){
   10 * exp(r*20)
 }
+
 print(Nt_func(0.5)) # Population size under the 0.5 growth rate scenario.
 
 
@@ -29,6 +30,7 @@ print(Nt_func(0.5)) # Population size under the 0.5 growth rate scenario.
 Nt_func <- function(Ni, r, t){
   Ni * exp(r*t)
 }
+
 
 
 # Test

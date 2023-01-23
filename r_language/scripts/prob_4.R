@@ -3,7 +3,7 @@
 # Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
-# 2023-01-16
+
 
 
 #### OBJECTIVES ##########################################################################################################
@@ -12,6 +12,9 @@
 # Use the function to determine the sum of integers from 1 to 5,000.
 
 ###########################################################################################################################
+
+
+# See lines 268 - 284 in the R01_RLanguage script
 
 
 # Write a function that computes the sum of integers from 1 to n (inclusive).
