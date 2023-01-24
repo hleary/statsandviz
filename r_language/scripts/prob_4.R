@@ -14,9 +14,6 @@
 ###########################################################################################################################
 
 
-# See lines 268 - 284 in the R01_RLanguage script
-
-
 # Write a function that computes the sum of integers from 1 to n (inclusive).
 sum_n <- function(n){sum(1:n)}
 

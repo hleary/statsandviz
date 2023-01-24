@@ -75,6 +75,7 @@ height <- c(1.75, 1.80, 1.65, 1.90, 1.74, 1.91)
 plot(height,weight)
 bmi <- weight/height^2
 
+
 x <- 1:3
 names(x)
 names(x) <- c("a", "b", "c")
@@ -224,6 +225,7 @@ func.test <- function (arguments) {
   expr
   return (value)
 }
+
 
 if(cond) expr
 if(cond) expr else alt.expr
