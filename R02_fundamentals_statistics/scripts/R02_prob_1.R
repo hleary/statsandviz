@@ -1,6 +1,6 @@
 # Problem Set: Fundamentals of Statistics
 # Problem Number 1
-# Status: In Progress
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -21,27 +21,29 @@
 
 
 # Put rates into a vector
-r <- c(0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6)
+und_rates <- c(0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6)
 
 
 # Draw histogram
-hist(r)
+hist(und_rates)
 
 # Calculate sample mean
-mean(r) # answer 1.375
-avg <- mean(r)
+mean(und_rates) 
 
 # Calculate range
-range(r) # answer 0.9 - 2.0
+range(und_rates) 
 
 # Calculate standard deviation
-sd(r) # answer 0.324
-stdev <- sd(r)
+sd(und_rates) 
 
 
 # Write a function to express the standard deviation 
 # as a percentage of the mean (that is, the coefficient of variation (CV)) and calculate it.
-cv <- function(r){ sd (r)/mean(r)*100}
-cv(r)
-x<-c(1,2,3,4,5)
-cv(x)
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(und_rates) 
+
+
+
+
