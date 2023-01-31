@@ -25,7 +25,7 @@ und_rates <- c(0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6)
 
 
 # Draw histogram
-hist(und_rates)
+hist(und_rates, xlab = "Hertz", ylab = "Frequency", main = "Undulation Rates of Tree Snakes")
 
 # Calculate sample mean
 mean(und_rates) 

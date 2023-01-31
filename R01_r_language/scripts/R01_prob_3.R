@@ -1,6 +1,6 @@
 # Problem Set: R Language
 # Problem Number 3
-# Status: Not Started
+# Status: In Progress
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -15,4 +15,23 @@
 # under three growth rate scenarios (0.5, 0.8, 0.4).
 
 ###########################################################################################################################
+
+# Write an exponential growth function.
+Ni <- 10
+t <- c(1:20)
+
+
+Nt <- function(r){
+  Nt <- Ni * exp(r*t)
+  plot(t, Nt)
+}
+
+Nt(0.5)
+Nt(0.8)
+Nt(0.4)
+
+# Logistic growth function (to incorporate K)
+
+
+
 

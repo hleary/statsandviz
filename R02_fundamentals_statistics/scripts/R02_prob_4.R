@@ -24,7 +24,7 @@ pnorm(3, lower.tail = FALSE)
 pnorm(42, mean = 35, sd = 6, lower.tail = FALSE)
 
 # c) Getting 10 out of 10 successes in a binomial distribution with probability 0.8
-dbinom(10, size = 10, prob = 0.8)
+dbinom(10, size = 10, prob = 0.8) # dbinom instead of pbinom because it's a discrete probability, we're not integrating anything.
 
 # d) X > 6.5 in a Chi-squared distribution with 2 degrees of freedom
 pchisq(6.5, df = 2, lower.tail = FALSE)

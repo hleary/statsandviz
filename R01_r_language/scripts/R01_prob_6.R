@@ -1,6 +1,6 @@
 # Problem Set: R Language
 # Problem Number 6
-# Status: In Progress
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -36,8 +36,8 @@ weather1 <- subset(weather, weather$month ==1)
 # Test
 # The subset was too big to see here, so I ended up viewing it outside of R to confirm.
 # There is likely a more efficient method using code, but I don't know it.
-weather1
-write.table(weather1, "C:\\Users\\hlear\\Desktop\\statsandviz\\r_language\\data\\weather1.tab", row.names=FALSE)
+# weather1
+# write.table(weather1, "C:\\Users\\hlear\\Desktop\\statsandviz\\r_language\\data\\weather1.tab", row.names=FALSE)
 
 
 # c) Using ggplot2, make a beautiful histogram of the variable ‘temp’
@@ -58,6 +58,12 @@ ggplot(weather, aes(x = time_hour, y = temp)) + geom_line(color = "steelblue") +
        x = "Time (hrs)",
        y = "Temp (F)")
 
+# e) Using ggplot2, make a beautiful boxplot of ‘temp’ as a function of ‘origin’
+ggplot(weather1, aes(x = origin, y = temp)) +
+  geom_boxplot() +
+  labs(title = "Temperature by Origin (2013)",
+       x = "Origin",
+       y = "Temperature (F)")
 
 
 
