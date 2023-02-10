@@ -1,6 +1,6 @@
 # Problem Set: R Language
 # Problem Number 5
-# Status: Not Started
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -15,3 +15,12 @@
 
 ###########################################################################################################################
 
+sqrt_round <- function(x) {
+  result <- round(sqrt(x))
+  return(result)
+}
+
+
+# Test
+sqrt(17)
+sqrt_round(17)

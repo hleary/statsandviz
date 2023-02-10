@@ -65,6 +65,3 @@ ggplot(weather1, aes(x = origin, y = temp)) +
        x = "Origin",
        y = "Temperature (F)")
 
-
-
-

@@ -1,0 +1,177 @@
+---
+title: 'Problem Set 3: Statistical Tests'
+author: "Heatherlee Leary"
+date: "2023-02-10"
+output: 
+  html_document:
+    toc: yes
+    theme: cerulean
+    highlight: tango
+---
+
+---
+
+## **Question 1**
+
+#### Normal human body temperature is 98.6 F. Researchers obtained body-temperature measurements on randomly chosen healthy people: 98.4, 98.6, 97.8, 98.8, 97.9, 99.0, 98.2, 98.8, 98.8, 99.0, 98.0, 99.2, 99.5, 99.4, 98.4, 99.1, 98.4, 97.6, 97.4, 97.5, 97.5, 98.8, 98.6, 100.0, 98.4.
+#### a) Make a histogram of the data
+#### b) Make a normal quantile plot
+#### c) Perform a Shapiro-Wilk test to test for normality
+#### d) Are the data normally distributed?
+#### e) Are these measurements consistent with a population mean of 98.6 F?
+
+&ensp;
+
+```{r}
+# Put body temp values into a vector
+temp <- c(98.4, 98.6, 97.8, 98.8, 97.9, 99.0, 98.2, 98.8, 98.8, 99.0, 98.0, 99.2, 99.5, 99.4, 98.4, 99.1, 98.4, 97.6, 97.4, 97.5, 97.5, 98.8, 98.6, 100.0, 98.4)
+
+# a) Histogram 
+hist(temp)
+
+# b) Normal Quantile Plot
+qqnorm(temp)
+qqline(temp)
+
+# c) Shapiro-Wilk Test
+shapiro.test(temp)
+
+# d) Are the data normally distributed?
+# Yes. Points follow the QQ line closely, indicating the data follows a normal distribution.
+# Also, the Shapiro-Wilk test p-value > 0.05, which means we fail to reject the null.
+
+# e) Are these measurements consistent with a population mean of 98.6 F? 
+t.test(temp, mu=98.6)
+
+# Yes, the measurements are consistent with a mean of 98.6 F. 
+# The p-value of 0.5802 is > 0.05, and 98.6 falls within the confidence intervals of the mean.
+# We fail to reject the null.
+```
+
+
+---
+
+## **Question 2**
+
+#### The brown recluse spider often lives in houses throughout central North America. A diet-preference study gave each of 41 spiders a choice between two crickets, one live and one dead. 31 of the 41 spiders chose the dead cricket over the live one. Does this represent evidence for a diet preference?
+
+&ensp;
+
+```{r}
+# Define the number of spiders and the number choosing the dead cricket
+n <- 41
+dead <- 31
+
+# Binomial test
+# Analyzing proportions with only 2 outcomes
+binom.test(dead, n, p=0.5)
+
+# Print the p-value
+binom.test(dead, n, p=0.5)$p.value
+
+# Does this represent evidence for a diet preference?
+# Yes. The p-value is < 0.05, which means there is enough evidence to reject the null. 
+```
+
+
+---
+
+## **Question 3**
+
+#### Ten epileptic patients participated in a study of a new anticonvulsant drug. During the first 8-week period, half the patients received a placebo and half were given the drug, and the number of seizures were recorded. Following this, the same patients were given the opposite treatment and the number of seizures were recorded. Assuming that the distribution of the difference between the placebo and drug meets the assumption of normality, perform an appropriate test to determine whether there were differences in the number of epileptic seizures with and without the drug.
+
+#### a) Make a boxplot of the data
+#### b) Test the difference
+
+&ensp;
+
+```{r}
+# Put values into vectors
+placebo = c(37, 52, 68, 4, 29, 32, 19, 52, 19, 12)
+drug = c(5, 23, 40, 3, 38, 19, 9, 24, 17, 14)
+
+# a) Create boxplot
+boxplot(placebo, drug, names=c("Placebo", "Drug"), main="Boxplot of Number of Seizures")
+
+# b) Test the difference
+# Paired t-test: Both treatments are applied to every sampled unit.
+t.test(placebo, drug, paired=TRUE)
+
+# View p-value:
+t.test(placebo, drug, paired=TRUE)$p.value
+
+# The p-value is < 0.05, which indicates a significant difference.
+```
+
+
+---
+
+## **Question 4**
+
+#### A bee biologist is analyzing whether there was an association between bee colony number and type of forest habitat. We expect that there is no habitat preference for bee colony number. Is this true based on this data?
+
+#### a) Make a barplot of the data
+#### b) Test the hypothesis of no-association
+
+&ensp;
+
+```{r}
+# Put the data into a vector
+data <- c("Oak"=33, "Hickory"=30, "Maple"=29, "Red Cedar"=4, "Poplar"=4)
+
+# Barplot
+barplot(data)
+
+# Test hypothesis of no-association
+# Chi-squared goodness-of-fit test:
+# Measures the discrepancy between an observed frequency distribution and the frequencies expected under a random model
+chisq.test(data)
+
+# Show p-value
+chisq.test(data)$p.value
+
+# The p-value is > 0.05, suggesting there is evidence for habitat preference for bee colony number.
+
+```
+
+
+---
+
+## **Question 5**
+
+#### Perform 10 one-sample t-tests for mu=0 on simulated standard normally distributed data of 25 observations each and get the P-value. Repeat the experiment, but instead simulate samples of 25 observations from a t-distribution with 2 degrees of freedom. Find a way to automate the first experiment to do it a 1,000 times and applying a false discovery rate correction to the P-values
+
+&ensp;
+
+```{r}
+# Perform 10 one-sample t-tests for mu=0 on simulated standard normally distributed data of 25 observations each and get the P-value.
+t.test(rnorm(25), mu=0)$p.value
+replicate(10, t.test(rnorm(25), mu=0)$p.value) # replicates x10
+
+# Repeat the experiment, but instead simulate samples of 25 observations from a t-distribution with 2 degrees of freedom. 
+t.test(rt(25, df=2), mu=0)$p.value
+replicate(10, t.test(rt(25, df=2), mu=0)$p.value) # replicates x10
+
+# Automate x1000 and apply FDR correction
+experiment.pval.fdr<-p.adjust(replicate(1000, t.test(rnorm(25), mu=0)$p.value), method="fdr")
+
+# Test
+head(experiment.pval.fdr)
+length(experiment.pval.fdr) # The number of elements in a vector
+```
+
+
+---
+
+## **Session Info**
+
+&ensp;
+
+```{r}
+sessionInfo()
+```
+
+
+
+
+

@@ -1,0 +1,241 @@
+---
+title: 'Problem Set 2: Fundamentals of Statistics'
+author: "Heatherlee Leary"
+date: "2023-02-09"
+output: 
+  html_document:
+    toc: yes
+    theme: cerulean
+    highlight: tango
+  
+---
+
+---
+
+## **Question 1**
+
+#### A researcher videotaped the glides of 8 tree snakes leaping from a 10-m tower. Undulation rates of the snakes measured in hertz (cycles per second) were as follows: 0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6.
+
+#### a) Draw a histogram of the undulation rate
+#### b) Calculate the sample mean
+#### c) Calculate the range
+#### d) Calculate the standard deviation
+#### e) Write a function to express the standard deviation as a percentage of the mean (that is, the coefficient of variation) and calculate it.
+
+
+&ensp;
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(ggplot2)
+
+# Put rates into a vector
+und_rates <- c(0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6)
+
+
+# Draw histogram
+hist(und_rates, xlab = "Hertz", ylab = "Frequency", main = "Undulation Rates of Tree Snakes")
+
+# Calculate sample mean
+mean(und_rates) 
+
+# Calculate range
+range(und_rates) 
+
+# Calculate standard deviation
+sd(und_rates) 
+
+
+# Write a function to express the standard deviation 
+# as a percentage of the mean (that is, the coefficient of variation (CV)) and calculate it.
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(und_rates) 
+```
+
+---
+
+## **Question 2**
+
+#### Blood pressure was measured (in units of mm Hg). Here are the measurements: 112, 128, 108, 129, 125, 153, 155, 132, 137.
+#### a) How many individuals are in the sample?
+#### b) What is the mean of this sample?
+#### c) What is the variance?
+#### d) What is the standard deviation?
+#### e) What is the coefficient of variation?
+
+&ensp;
+
+```{r}
+# Assign blood pressure measurements (bp) to a vector
+bp <- c(112, 128, 108, 129, 125, 153, 155, 132, 137)
+
+# a) How many individuals are in the sample?
+length(bp)
+
+# b) What is the mean of this sample?
+mean(bp)
+
+# c) What is the variance?
+var(bp)
+
+# d) What is the standard deviation?
+sd(bp)
+
+# e) What is the coefficient of variation?
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(bp)
+```
+
+
+---
+
+## **Problem 3**
+
+#### The data in the file DesertBirdAbundance.csv are from a survey of the breeding birds of Organ Pipe Cactus National Monument in southern Arizona.
+#### a) Draw a histogram of the abundance data.
+#### b) Calculate the median and the mean of the bird abundance data.
+#### c) In this particular case, which do you think is the best measure of center, the mean or the median?
+#### d) Calculate the range, standard deviation, variance and coefficient of variation of the bird abundance data.
+
+```{r}
+# Read in the Desert Bird Abundance csv file.
+birdset <- read.csv(file = "C:\\Users\\hlear\\Desktop\\statsandviz\\R02_fundamentals_statistics\\data\\DesertBirdAbundance.csv", header = TRUE)
+
+# Explore
+head(birdset)
+class(birdset)
+
+# a) Histogram using ggplot2
+ggplot(birdset, aes(x=abundance))+   
+  geom_histogram(fill = "steelblue") +
+  labs(title = "Histogram of Desert Bird Abundance", x = "Abundance", y = "Frequency")
+
+# b) Median and Mean
+mean(birdset$abundance)
+median(birdset$abundance)
+
+# c) Best measure of center in this case? 
+# The median 
+
+# d) Range, SD, variance, and CV
+range(birdset$abundance)
+sd(birdset$abundance)
+var(birdset$abundance)
+
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(birdset$abundance)
+  
+  
+```
+
+
+---
+
+## **Problem 4**
+
+#### Calculate the probability of each of the following events:
+#### a) A standard normally distributed variable is larger than 3
+#### b) A normally distributed variable with mean 35 and standard deviation 6 is larger than 42
+#### c) Getting 10 out of 10 successes in a binomial distribution with probability 0.8
+#### d) X > 6.5 in a Chi-squared distribution with 2 degrees of freedom
+
+&ensp;
+
+```{r}
+# a) A standard normally distributed variable is larger than 3
+pnorm(3, lower.tail = FALSE)
+
+# b) A normally distributed variable with mean 35 and standard deviation 6 is larger than 42
+pnorm(42, mean = 35, sd = 6, lower.tail = FALSE)
+
+# c) Getting 10 out of 10 successes in a binomial distribution with probability 0.8
+dbinom(10, size = 10, prob = 0.8) # dbinom instead of pbinom because it's a discrete probability, we're not integrating anything.
+
+# d) X > 6.5 in a Chi-squared distribution with 2 degrees of freedom
+pchisq(6.5, df = 2, lower.tail = FALSE)
+```
+
+
+---
+
+## **Problem 5**
+
+#### Demonstrate graphically the central limit theorem (by sampling and calculating the mean) using a Binomial distribution with 10 trials (size=10) and 0.9 probability of success (prob=0.9) and a sample size of 5.
+
+&ensp;
+
+```{r}
+# Create a vector to store the mean of each sample
+means <- numeric(1000)
+
+# Loop to generate 1000 samples of size 5 from the Binomial distribution
+for (i in 1:1000) {
+  sample <- rbinom(5, size= 10, prob= 0.9) # generate sample of size 5
+  means[i] <- mean(sample) # calculate mean of the sample
+}
+
+# Plot the histogram of the sample means
+hist(means, main = "Histogram of Sample Means", xlab = "Sample Mean")
+```
+
+
+---
+
+## **Problem 6**
+
+#### Imagine height is genetically determined by the combined (that is, the sum) effect of several genes (polygenic trait). Assume that each gene has an effect on height as a uniform distribution with min=1 and max=3. Simulate an stochastic model of height for 1,000 random people based on 1 gene, 2 genes, and 5 genes. As we increase the number of genes, what is the resulting height distribution?
+
+&ensp;
+
+```{r}
+hist(runif(1000,1,3))
+
+hist((runif(1000,1,3)) + runif(1000,1,3))
+
+hist(runif(1000,1,3) + runif(1000,1,3) + runif(1000,1,3) + runif(1000,1,3) + runif(1000,1,3))
+
+
+# As we increase the number of genes, what is the resulting height distribution?
+# As we increase the number of genes, the height distribution becomes more narrow and less variable.
+# Increasing sample size reduces sampling error / spread. 
+```
+
+
+---
+
+## **Problem 7**
+
+#### Do the same as in the previous problem but now assuming that the combined effect of the genes is multiplicative (not the sum). As we increase the number of genes, what is the resulting height distribution?
+
+&ensp;
+
+```{r}
+hist(runif(1000,1,3))
+
+hist((runif(1000,1,3)) * runif(1000,1,3))
+
+hist(runif(1000,1,3) * runif(1000,1,3) * runif(1000,1,3) * runif(1000,1,3) * runif(1000,1,3))
+
+# As we increase the number of genes, what is the resulting height distribution?
+# As we increase the number of genes, the resulting height distribution becomes more right-skewed. 
+```
+
+
+---
+
+## **Session Info**
+
+&ensp;
+
+```{r}
+sessionInfo()
+```
+
+

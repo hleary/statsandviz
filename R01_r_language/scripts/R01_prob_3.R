@@ -1,6 +1,6 @@
 # Problem Set: R Language
 # Problem Number 3
-# Status: In Progress
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -16,22 +16,19 @@
 
 ###########################################################################################################################
 
-# Write an exponential growth function.
+# Logistic growth function.
 Ni <- 10
 t <- c(1:20)
+K <- 1000
 
+log_growth <- function (r) {
+  Nt <- K*Ni/(Ni+(K-Ni) * exp(1)^(-r*t))
+  plot(t, Nt, xlab="Time", ylab="Population size")
+       }
 
-Nt <- function(r){
-  Nt <- Ni * exp(r*t)
-  plot(t, Nt)
-}
-
-Nt(0.5)
-Nt(0.8)
-Nt(0.4)
-
-# Logistic growth function (to incorporate K)
-
-
+# Test under three growth rate scenarios
+log_growth(0.5)
+log_growth(0.8)
+log_growth(0.4)
 
 

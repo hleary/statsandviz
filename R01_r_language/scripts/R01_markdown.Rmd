@@ -1,0 +1,244 @@
+---
+title: 'Problem Set 1: R Language'
+author: "Heatherlee Leary"
+date: "2023-02-08"
+output: 
+  html_document: 
+    theme: cerulean
+    toc: yes
+    highlight: tango
+---
+
+---
+
+## **Question 1**
+
+#### Install the ISwR R package. 
+#### Write the built-in dataset thuesen to a tab-separated text file.
+#### View it with a text editor. 
+#### Change the NA to . (period)
+#### Read the changed file back into R.
+
+&ensp;
+
+```{r}
+
+# Install and load the ISwR R Package.
+install.packages("ISwR", repos = "http://cran.us.r-project.org")
+library("ISwR")
+
+
+# Write the built-in dataset thuesen to a tab-separated text file. 
+data(package = "ISwR") # Run to see the data sets within the ISwR package.
+thuesen_df <- as.data.frame(thuesen)  # Read the dataset thuesen in the package ISwR
+head(thuesen_df) # View the first few rows of the dataset thuesen
+write.table(thuesen_df, "C:\\Users\\hlear\\Desktop\\statsandviz\\R01_r_language\\data\\thuesen_tab.txt", row.names=FALSE) # Don't export row names.
+
+
+# I viewed thuesen_tab in Notepad and changed "NA" to "." (period)
+
+
+# Read the changed file back into R.
+thuesen_tab <- read.table(file = "C:\\Users\\hlear\\Desktop\\statsandviz\\R01_r_language\\data\\thuesen_tab.txt", header = TRUE) # Has a header
+head(thuesen_tab)
+
+```
+
+
+---
+
+## **Question 2**
+
+#### The exponential growth of a population is described by this mathematical function: Nt=Ni * e^rt
+
+#### where Nt is the population size at time t, Ni is the initial population size, and r is the rate of growth or reproductive rate.
+
+&ensp;
+
+#### Write an exponential growth function in R that also generates a plot with time on the x axis and Nt on the y axis. Using that function, create plots for 20 days assuming an initial population size of 10 individuals under three growth rate scenarios (0.5, 0.8, -0.1).
+
+&ensp;
+
+```{r}
+
+# Write an exponential growth function.
+Ni <- 10
+t <- c(1:20)
+
+
+Nt <- function(r){
+  Nt <- Ni * exp(r*t)
+  plot(t, Nt)
+}
+
+
+# Test under three growth rate scenarios.
+Nt(0.5)
+Nt(0.8)
+Nt(-0.1)
+
+```
+
+
+---
+
+## **Question 3**
+
+#### Under highly favorable conditions, populations grow exponentially.However resources will eventually limit population growth and exponential growth cannot continue indefinitely. This phenomenon is described by the logistic growth function: Nt=(K*Ni)/(Ni+(K-Ni)e^(-rt)) 
+
+#### where K is the carrying capacity. 
+
+&ensp;
+
+#### Write a logistic growth function in R that also generates a plot with time on the x axis and Nt on the y axis. Using that function create plots for 20 days assuming an initial population size of 10 individuals and a carrying capacity of 1,000 individuals under three growth rate scenarios (0.5, 0.8, 0.4).
+
+&ensp;
+
+```{r}
+
+# Logistic growth function.
+Ni <- 10
+t <- c(1:20)
+K <- 1000
+
+log_growth <- function (r) {
+  Nt <- K*Ni/(Ni+(K-Ni) * exp(1)^(-r*t))
+  plot(t, Nt, xlab="Time", ylab="Population size")
+       }
+
+# Test under three growth rate scenarios
+log_growth(0.5)
+log_growth(0.8)
+log_growth(0.4)
+
+```
+
+
+---
+
+## **Question 4**
+
+#### Write a function (sum_n) that for any given value, say n, computes the sum of the integers from 1 to n (inclusive). Use the function to determine the sum of integers from 1 to 5,000.
+
+&ensp;
+
+```{r}
+
+# Write a function that computes the sum of integers from 1 to n (inclusive).
+sum_n <- function(n){sum(1:n)}
+
+
+# Quick test with n = 5. 
+1+2+3+4+5 # Run this to see what the sum of integers from 1 to 5 equals.
+sum_n(5) # Now test the function with n = 5.
+
+
+# Use the function to determine the sum of integers from 1 to 5,000.
+sum_n(5000)
+
+```
+
+
+---
+
+## **Question 5**
+
+#### Write a function (sqrt_round) that takes a number x as input, takes the square root, rounds it to the nearest whole number and then returns the result.
+
+&ensp;
+
+```{r}
+
+sqrt_round <- function(x) {
+  result <- round(sqrt(x))
+  return(result)
+}
+
+
+# Test
+sqrt(17)
+sqrt_round(17)
+
+```
+
+
+---
+
+## **Question 6**
+
+#### Install the R package ‘nycflights13’, and load the ‘weather’ data.
+#### a) Explore the columns names and the top part of the dataset to get a sense of the data
+#### b) Make a subset of the data from just the first month (1) and then save that subset as ‘weather1’
+#### c) Using ggplot2, make a beautiful histogram of the variable ‘temp’
+#### d) Using ggplot2, make a beautiful line plot of ‘temp’ as a function of ‘time_hour’
+#### e) Using ggplot2, make a beautiful boxplot of ‘temp’ as a function of ‘origin’
+
+&ensp;
+
+```{r}
+
+# Install the R package ‘nycflights13’, and load the ‘weather’ data.
+install.packages("nycflights13", repos = "http://cran.us.r-project.org")
+data(package = "nycflights13") # Run to see data sets within the nycflights13 package. Weather is in there.
+library(nycflights13)
+
+
+# a) Explore the column names and top part of the dataset to get a sense of the data.
+colnames(weather) # View column names only.
+head(weather) # View top part of the data.
+
+
+# b) Make a subset of the data from just the first month (1) and then save that subset as ‘weather1’.
+weather # View the "weather" data set.
+weather1 <- subset(weather, weather$month ==1)
+
+# Test
+# The subset was too big to see here, so I ended up viewing it outside of R to confirm.
+# There is likely a more efficient method using code, but I don't know it.
+# weather1
+# write.table(weather1, "C:\\Users\\hlear\\Desktop\\statsandviz\\r_language\\data\\weather1.tab", row.names=FALSE)
+
+
+# c) Using ggplot2, make a beautiful histogram of the variable ‘temp’
+library(tidyverse)
+ggplot(data = weather, aes(x = temp)) + geom_histogram() # Not beautiful...
+
+# Make pretty
+ggplot(data = weather, aes(x = temp)) + geom_histogram(col = "white", 
+                                                       fill = "red") +
+  labs(title = "Temperatures during NYC Flight Departures (2013)",
+       x = "Temperature (F)",
+       y = "Count")
+
+
+# d) Using ggplot2, make a beautiful line plot of ‘temp’ as a function of ‘time_hour’
+ggplot(weather, aes(x = time_hour, y = temp)) + geom_line(color = "steelblue") +
+  labs(title = "NYC Departure Temperatures Over Time (2013)",
+       x = "Time (hrs)",
+       y = "Temp (F)")
+
+# e) Using ggplot2, make a beautiful boxplot of ‘temp’ as a function of ‘origin’
+ggplot(weather1, aes(x = origin, y = temp)) +
+  geom_boxplot() +
+  labs(title = "Temperature by Origin (2013)",
+       x = "Origin",
+       y = "Temperature (F)")
+
+```
+
+
+---
+
+## **Session Info**
+
+&ensp;
+
+```{r}
+
+sessionInfo()
+
+```
+
+
+
+

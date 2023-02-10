@@ -1,6 +1,6 @@
 # Problem Set: Statistical Tests
 # Problem Number 3
-# Status: Not Started
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -32,3 +32,19 @@
 
 ##########################################################################################################################
 
+
+# Put values into vectors
+placebo = c(37, 52, 68, 4, 29, 32, 19, 52, 19, 12)
+drug = c(5, 23, 40, 3, 38, 19, 9, 24, 17, 14)
+
+# a) Create boxplot
+boxplot(placebo, drug, names=c("Placebo", "Drug"), main="Boxplot of Number of Seizures")
+
+# b) Test the difference
+# Paired t-test: Both treatments are applied to every sampled unit.
+t.test(placebo, drug, paired=TRUE)
+
+# View p-value:
+t.test(placebo, drug, paired=TRUE)$p.value
+
+# The p-value is < 0.05, which indicates a significant difference.

@@ -1,6 +1,6 @@
 # Problem Set: R Language
 # Problem Number 2
-# Status: In Progress
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
@@ -17,22 +17,21 @@
 ###########################################################################################################################
 
 
-# Load libraries
-library("tidyverse")
-
-
 # Write an exponential growth function.
 Ni <- 10
 t <- c(1:20)
 
+
 Nt <- function(r){
-  Nt <-Ni * exp(r*t)
+  Nt <- Ni * exp(r*t)
+  plot(t, Nt)
 }
 
-# Plot
-plot(t, Nt(0.5))
-plot(t, Nt(0.8))
-plot(t, Nt(-0.1))
+
+# Test under three growth rate scenarios.
+Nt(0.5)
+Nt(0.8)
+Nt(-0.1)
 
 
 

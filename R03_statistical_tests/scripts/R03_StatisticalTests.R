@@ -100,7 +100,7 @@ wilcox.test(daily.intake, mu=7725)				#Wilcoxon test
 wilcox.test(extra ~ group, data = sleep)	#Mann-Whitney U-test or two-sample Wilcoxon test
 
 # Multiple test correction
-micro<-t(read.table("~/Documents/Teaching/IntroductoryMultivariateStatisticsRENVS696A/abund_lake_soil.txt", sep="\t", header=T, row.names=1))
+micro<-t(read.table("C:\\Users\\hlear\\Desktop\\statsandviz\\R03_statistical_tests\\data\\abund_lake_soil.txt", sep="\t", header=T, row.names=1))
 #Check differences between lakes and soils for each bacterial taxa (data are not-normally distributed)
 micro.pval<-apply(micro, 2, function(x) {wilcox.test(x[1:10], x[11:20])$p.value})
 
