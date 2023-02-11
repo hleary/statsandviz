@@ -31,6 +31,8 @@
 # Install and load packages
 # install.packages('reshape2')
 # library(reshape2)
+# library(readxl)
+
 
 
 # =======================================================================================================================
@@ -51,6 +53,8 @@ data_long <- melt(data_wide, id.vars = NULL)
 # Explore data
 data_long
 colnames(data_long)
+class(data_long)
+
 
 
 # =======================================================================================================================
@@ -62,6 +66,7 @@ ggplot(data_long, aes(x = variable, y = value)) +
   ggtitle("Percent Cover of Kudzu After Treatment") +
   xlab("Treatment") +
   ylab("Percent Cover")
+
 
 
 # ======================================================================================================================
@@ -79,24 +84,23 @@ anova(model)
 # The "***" sign next to the p-value indicates that the results are highly significant (p < 0.001).
 
 
+
 # ======================================================================================================================
 # d) What is the variation explained (R-squared)? ======================================================================
 # ======================================================================================================================
 
-summary(model)
+summary(model)$r.squared
 
-# Multiple R-squared:  0.879
-# Adjusted R-squared:  0.8629 
-# These R-squared values indicate that the regression model fits the data well
+# R-squared value indicates that the regression model fits the data well
+
 
 
 # ======================================================================================================================
 # e) Perform a post hoc test============================================================================================
 # ======================================================================================================================
 
-
-
-
+# Perform Tukey's test
+TukeyHSD(aov(value~variable, data=data_long))
 
 
 

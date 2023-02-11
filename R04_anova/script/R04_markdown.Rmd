@@ -1,0 +1,220 @@
+---
+title: 'Problem Set 4: ANOVA'
+author: "Heatherlee Leary"
+date: "2023-02-11"
+output: 
+  html_document:
+    toc: yes
+    theme: cerulean
+    highlight: tango
+---
+
+---
+
+## **Question 1**
+
+You are hired by the US Department of Agriculture to develop effective control practices for invasive plants (data_ANOVA.xlsx). In particular, you are asked to investigate pesticide controls for kudzu which is an invasive vine that grows in thick mats that smother underlying plants. Two of the most widely used pesticides for kudzu are glyphosate and triclopyr. To determine the effectiveness of a single application of pesticide, you conduct an experiment in 18 plots that each had 50% kudzu cover. In mid-summer, you applied equal amounts of 2% glyphosate to 6 plots, 2% triclopyr to 6 plots, and water without pesticides to 6 plots. Then you returned in autumn and measured the percent cover of kudzu in the plots.
+
+&ensp;
+
+#### Load libraries
+
+```{r}
+# Load libraries
+library(readxl)    # read xlsx format
+library(reshape2)  # to use the melt function
+library(ggplot2)   # for data viz
+```
+
+$ensp; 
+
+#### a) Transform the data from wide to long format
+
+```{r}
+# Read in  wide format data
+data_wide <- read_xlsx("C:\\Users\\hlear\\Desktop\\statsandviz\\R04_anova\\data\\data_ANOVA.xlsx")
+
+# Explore data
+head(data_wide)
+colnames(data_wide)
+class(data_wide)
+
+# Melt the data into long format
+data_long <- melt(data_wide, id.vars = NULL)
+
+# Explore data
+data_long
+colnames(data_long)
+class(data_long)
+
+```
+
+&ensp;
+
+#### b) Make a boxplot of the data
+
+```{r}
+# boxplot using ggplot2
+
+ggplot(data_long, aes(x = variable, y = value)) +
+  geom_boxplot() +
+  ggtitle("Percent Cover of Kudzu After Treatment") +
+  xlab("Treatment") +
+  ylab("Percent Cover")
+
+```
+
+&ensp;
+
+#### c) Perform an ANOVA
+
+In this output, the p-value is very small (1.318e-07), 
+which suggests that there is a significant difference between the means of the groups. 
+The "***" sign next to the p-value indicates that the results are highly significant (p < 0.001).
+
+```{r}
+# Fit a linear regression model
+model <- lm(value ~ variable, data = data_long)
+
+# Perform an ANOVA on the model
+anova(model)
+```
+
+&ensp;
+
+#### d) What is the variation explained (R2)?
+
+The resulting R-squared value indicates that the regression model fits the data well.
+
+```{r}
+summary(model)$r.squared
+```
+
+&ensp;
+
+#### e) Perform a post hoc test
+
+```{r}
+# Perform Tukey's test
+TukeyHSD(aov(value~variable, data=data_long))
+```
+
+
+
+---
+
+
+## **Question 2**
+
+Data in growth.txt come from a farm-scale trial of animal diets. There are two factors: diet and supplement. Diet is a factor with three levels: barley, oats and wheat. Supplement is a factor with four levels: agrimore, control, supergain and supersupp. The response variable is weight gain after 6 weeks.
+
+&ensp;
+
+#### Read in data
+
+```{r}
+# Read in data
+data <- read.table("C:\\Users\\hlear\\Desktop\\statsandviz\\R04_anova\\data\\growth.txt", sep = "\t", header = TRUE)
+
+# Explore data
+class(data)
+head(data)
+colnames(data)
+```
+
+&ensp;
+
+#### a) Inspect the data using boxplots
+
+```{r}
+# Create Boxplot
+boxplot(gain~diet, data=data)             # weight gain as a function of diet
+boxplot(gain~supplement, data=data)       # weight gain as a function of supplement
+boxplot(gain~diet+supplement, data=data)  # weight gain for each combination of diet/supplement
+```
+
+&ensp
+
+#### b) Perform a two-way ANOVA
+
+```{r}
+
+anova(lm(gain~diet+supplement, data=data))   # without interaction
+summary(lm(gain~diet+supplement, data=data))$r.squared # for R-squared
+
+anova(lm(gain~diet*supplement, data=data))   # includes interaction
+summary(lm(gain~diet*supplement, data=data))$r.squared # for R-squared
+```
+
+&ensp;
+
+#### (Exploration: Aikaike Information Criterion)
+
+```{r}
+# install.packages("AICcmodavg")
+# library(AICcmodavg)
+
+# Fit the first linear regression model
+two_way <- lm(gain ~ diet + supplement, data = data)
+
+# Extract the AIC value for the first model
+aic_two_way <- AIC(two_way)
+
+# Fit the second linear regression model
+interaction <- lm(gain ~ diet * supplement, data = data)
+
+# Extract the AIC value for the second model
+aic_interaction <- AIC(interaction)
+
+# Compare the AIC values to determine which model is best
+if (aic_two_way < aic_interaction) {
+  cat("The two_way model is better, with AIC =", aic_two_way)
+} else {
+  cat("The interaction model is better, with AIC =", aic_interaction)
+}
+```
+
+&ensp;
+
+#### c) Assess graphically if there exists an interaction between both factors
+
+```{r}
+interaction.plot(data$diet, data$supplement, data$gain)  # supersupp and agrimore intersect at wheat 
+
+interaction.plot(data$supplement, data$diet, data$gain)  # parallel (little to no interaction)
+```
+
+&ensp;
+
+#### d) Given what you learnt about the interaction, what would be a better model?
+The two-way (no interaction) model is better.
+
+&ensp;
+
+#### e) What is the variation explained (R2) of this new model?
+
+```{r}
+anova(lm(gain~diet+supplement, data=data))    # without interaction
+summary(lm(gain~diet+supplement, data=data))$r.squared  # for R-squared
+```
+
+&ensp;
+
+#### f) Perform a Tukey HSD test of this new model
+
+```{r}
+TukeyHSD(aov(gain~diet+supplement, data=data))
+```
+
+&ensp;
+
+## **Session Info**
+
+```{r}
+sessionInfo()
+```
+
+
+
+
+
