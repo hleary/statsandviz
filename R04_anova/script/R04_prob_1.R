@@ -1,6 +1,6 @@
 # Problem Set: ANOVA
 # Problem Number 1
-# Status: In Progress
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 
