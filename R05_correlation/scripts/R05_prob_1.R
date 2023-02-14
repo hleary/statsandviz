@@ -52,6 +52,10 @@ plot(hyena)
 # b) Test the linear association between both variables =============================================
 # ===================================================================================================
 
+## IMPORTANT: Here I fit a linear regression model, however
+## While the mathematics works out, the lm model assumes x is driving y
+## But we don't want to make assumptions about anything "driving" anything
+## So conceptually, we should not do this step:
 # Fit the linear regression model
 hyena_lm <- lm(Hz ~ age, data = hyena)
 summary(hyena_lm) # to see R-squared and p-value
@@ -81,6 +85,8 @@ ggplot(data=hyena, aes(x=age, y=Hz)) +
 #Non-parametric rank correlation methods (Spearman, Kendall)
 cor(hyena, method="spearman")
 cor(hyena, method="kendall")
+
+cor.test(hyena, method = "spearman")
 
 
 

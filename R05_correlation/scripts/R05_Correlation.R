@@ -6,6 +6,7 @@
 #Linear correlation coefficient (Pearson's r): measures the strength and direction of the association.
 
 states<- as.data.frame(state.x77[,1:6])
+head(states)
 attach(states)
 
 pairs(states) 
@@ -25,8 +26,8 @@ library(ggplot2)
 library(cowplot)
 ggplot(data=states, aes(x=Murder, y=Illiteracy))+
   geom_point(size=2.5, alpha=0.5)+
-  geom_smooth(method="lm", se=F, size=1.5, color="firebrick4", alpha=0.2)+
-  theme_cowplot(14)
+  geom_smooth(method="lm", se=F, size=1.5, color="firebrick4", alpha=0.2)
+  # theme_cowplot(14)
 
 #Non-parametric rank correlation methods (Spearman, Kendall)
 cor(states, method="spearman")
