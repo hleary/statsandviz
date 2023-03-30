@@ -1,6 +1,6 @@
 # Problem Set: Regression
 # Problem Number 2
-# Status: In Progress
+# Status: Completed
 # Heatherlee Leary
 # hleary@arizona.edu
 

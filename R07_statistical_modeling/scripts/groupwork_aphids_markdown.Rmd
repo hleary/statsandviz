@@ -1,0 +1,90 @@
+---
+title: 'Group Work Aphids'
+author: "Aphid Research Team"
+date: "2023-03-22"
+output: 
+  html_document:
+    toc: yes
+    theme: cerulean
+    highlight: tango
+---
+
+---
+
+## **Packages**
+
+```{r}
+library(tidyverse)   # data manipulation
+library(car)         # regression
+library(performance) # check model assumptions
+library(ggplot2)     # data viz
+library(lme4)        # mixed effects models
+```
+
+&ensp;
+
+---
+
+## **Research Question**
+
+
+#### Question: Is aphid count influenced by the presence of birds and by season?
+#### H0: Aphid count is not influenced by presence/absence of birds.
+#### H0: Aphid count is not influenced by season.
+#### H1: Aphid count decreases with presence of birds.
+#### H2: Aphid count changes with season. 
+
+&ensp;
+
+---
+
+## **Exploratory**
+
+```{r}
+# Load data
+aphids <- read.table("C:\\Users\\hlear\\Desktop\\statsandviz\\R07_statistical_modeling\\data\\aphids.txt", sep = "\t", header = TRUE)
+
+
+# Explore data
+head(aphids)
+dim(aphids)
+
+# Visualize data
+
+# Boxplot by treatment and season
+ggplot(aphids, aes(x = Treatment, y = Counts, fill = Season)) +
+  geom_boxplot() +
+  labs(x = "Treatment", y = "Aphid counts", fill = "Season")+
+   ggtitle("Boxplot of aphid counts by treatment and season")
+
+# Histogram of aphid counts
+ggplot(aphids, aes(x = Counts)) +
+  geom_histogram() +
+  labs(x = "Aphid counts", y = "Frequency")
+
+# Scatterplot of counts by plot
+ggplot(aphids, aes(x = Plot, y = Counts)) +
+  geom_point() +
+  labs(x = "Plot", y = "Aphid counts")
+
+```
+
+&ensp;
+
+---
+
+## **Statistical Tests**
+
+#### ANOVA
+In the case of the aphids data, we have two treatments (present or excluded) and two seasons (Season1 or Season2), which suggests that an ANOVA is appropriate. Additionally, an ANOVA can help us test for interactions between the two factors (treatment and season), which can provide more information about the effect of each factor on aphid counts.
+
+```{r}
+# Perform ANOVA
+aphids.aov <- aov(Counts ~ Treatment * Season, data = aphids)
+summary(aphids.aov)
+```
+
+&ensp;
+
+---
+
