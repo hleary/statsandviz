@@ -1,0 +1,329 @@
+---
+title: "Tutorial of Hotspot Analysis in R"
+author: "Heatherlee Leary"
+date: "2023-04-19"
+output: 
+  html_document:
+    toc: yes
+    theme: cerulean
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "C:/Users/hlear/Desktop/statsandviz/advanced_topic")
+
+```
+
+
+&ensp;
+
+## **Introduction**
+
+#### This tutorial will walk you through the steps and R code to perform a hotspot analysis using the Getis-Ord-Gi method. 
+
+As an example, we will look at tree equity score data for the city of Tucson, Arizona, USA. A tree equity score (TES) is "a metric that helps cities assess how well they are delivering equitable tree canopy cover to all residents. It is derived from tree canopy cover, climate, demographic and socioeconomic data" [(American Forests 2023)](https://www.treeequityscore.org/methodology/). TES values range from 0 - 100, with a lower score indicating lower equity.  
+
+Imagine we want to identify local spatial patterns of TES across Tucson. Specifically, we want to know whether there are clusters of high and low TES values. This information can help the City of Tucson prioritize where resources are allocated for tree planting initiatives and other climate mitigation strategies.  
+
+&ensp;
+
+## **Spatial Autocorrelation**
+
+#### Before moving on, it's important to understand the concept of spatial autocorrelation.
+
+*Spatial autocorrelation* is a measure of how a set of spatial features or their associated values are related to each other in space. It describes the extent to which nearby features or values are similar (clustered) or dissimilar (dispersed). Spatial autocorrelation can be positive or negative:
+
+* Positive spatial autocorrelation: Features or values are clustered in space, and nearby locations tend to have similar values or characteristics.
+
+* Negative spatial autocorrelation: Features or values are dispersed in space, and nearby locations tend to have dissimilar values or characteristics.
+
+&ensp;
+
+## **Moran's I vs. Getis-Ord-Gi**  
+
+#### Moran's I and Getis-Ord-Gi are both used to analyze spatial autocorrelation, but they serve different purposes:  
+
+*Moran's I* measures the overall global spatial autocorrelation in the dataset. It provides a single value between -1 and 1 to describe whether values are dispersed (-1), random (0), or clustered (1) across the entire study area.  
+
+*Getis-Ord-Gi*, on the other hand, is a local indicator of spatial association (LISA) that identifies spatial clusters of high or low values (hotspots and coldspots). It calculates a Gi value for each feature in the dataset, which allows for a more detailed analysis of spatial patterns.  
+
+To summarize: While Moran's I is helpful in understanding the overall spatial patterns in a dataset, Getis-Ord-Gi provides more granular insights by identifying local patterns and hotspots.  
+
+&ensp;
+
+## **R Packages**
+
+You will need the following R packages:  
+`sf`      *for simple features*  
+`sfdep`   *for spatial analyses*  
+`spdep`   *for spatial analyses*  
+`dyplyr`  *for data manipulation*  
+`tidyr`   *for data manipulation*  
+`ggplot2` *for data visualization*  
+
+`r require(sf)        # Simple features    
+require(sfdep)     # Spatial analyses  
+require(spdep)     # Spatial analyses   
+require(dplyr)     # Data manipulation    
+require(tidyr)     # Data manipulation    
+require(ggplot2)   # Data visualization`
+
+
+&ensp;
+
+## **STEP 1: Raw Data**
+
+#### As with any analysis, we begin by exploring the raw data.  
+
+I have already cleaned this dataset and removed NA values. The original TES dataset can be accessed from the [City of Tucson's open data platform](https://gisdata.tucsonaz.gov/datasets/cotgis::tree-equity-scores-tucson-1/about)  
+
+```{r}
+# Read in data
+tes_data <- st_read("data/tree_equity_data.shp")
+
+# View first six rows of the dataset
+head(tes_data)
+```
+
+This is a simple feature data type with 330 rows (Tucson neighborhoods).     
+It contains the following columns:   
+'NID' = unique neighborhood identifier  
+'nghbrhd' = neighborhood name  
+'treEqty' = tree equity score  
+'geometry' = spatial geometry for plotting  
+
+&ensp;
+
+Let's visualize the tree equity variable (treEqty):
+
+```{r}
+# Visualize tree equity as histogram
+hist(tes_data$treEqty, main = "Distribution of Tree Equity Scores", xlab = "Tree Equity Score", ylab = "Frequency")
+
+# Visualize tree equity across neighborhoods
+ggplot(tes_data) +
+  geom_sf(aes(fill = treEqty), color = "black", lwd = 0.15) +
+  scale_fill_gradient(name = "Tree Equity Score",
+                      low = "white",
+                      high = "darkgreen") +
+  ggtitle("Tree Equity Scores of Tucson Neighborhoods") +
+  labs(caption = "Data source: City of Tucson") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+```
+
+
+&ensp;
+
+## **STEP 2: Neighbor List**
+
+#### Create a list of neighbors for each polygon in 'tes_data'.  
+
+```{r}
+# Create a neighbor list based on queen contiguity
+list_nb <- poly2nb(tes_data, queen = TRUE)
+```
+
+The `poly2nb()` function creates a list of neighbors for each polygon in 'tes_data'. In this example, the relationship will be based on a queen contiguity criterion (`queen=TRUE`), which considers polygons to be neighbors if they share a boundary or a vertex.  
+
+&ensp;
+
+## **STEP 3: Empty Neighbor Sets**
+
+#### Next, we check for empty neighbor sets (polygons without neighbors).   
+
+If there are empty neighbors, then this will eventually cause an error and prevent the analysis from running.  
+
+There are a few ways to address empty neighbor sets. Here, we can simply remove them. Note that removing empty neighbor sets could impact the results of spatial analyses. Carefully consider whether this is an appropriate approach for your own analyses.  
+
+```{r}
+# Check for empty neighbor sets
+# card() calculates number of neighbors for each polygon in the list
+# which() finds polygons with 0 neighbors
+empty_nb <- which(card(list_nb) == 0)
+empty_nb       
+
+# Remove polygons with empty neighbor sets from the data
+tes_subset <- tes_data[-empty_nb, ]
+```
+
+
+
+&ensp;
+
+If you need to know the neighborhood names for reporting, then run the following code.  
+
+```{r}
+# Subset 'tes_data' to extract polygons with empty neighbor sets
+empty_polygons <- tes_data[empty_nb, ]
+empty_polygons$nghbrhd  # print neighborhood names
+```
+
+&ensp;
+
+## **STEP 4: Spatial Weights and Spatial Lag**
+
+#### Create spatial weights and calculate the spatial lag of the 'treEqty' variable for the polygons in 'tes_subset'.    
+
+```{r}
+# Identify neighbors, create weights, calculate spatial lag
+tes_nbs <- tes_subset |> 
+  mutate(
+    nb = st_contiguity(geometry),        # neighbors share border/vertex
+    wt = st_weights(nb),                 # row-standardized weights
+    tes_lag = st_lag(treEqty, nb, wt)    # calculate spatial lag of TreEqty
+  ) 
+
+```
+
+
+The `st_contiguity()` function is used to create a binary adjacency matrix 'nb' that indicates which polygons share a border or vertex. 'list_nb' (from Step 2) and 'nb' represent the same neighbor relationships between polygons, but in different formats: 'list_nb' is a list of neighbors, while 'nb' is a spatial weights matrix more suitable for spatial analysis and modeling.  
+
+The `st_weights()` function is used to create a row-standardized spatial weights matrix 'wt' from 'nb'. In other words, each neighborhood is weighted equally. You may need to assign weights differently in your own study.  
+
+The `st_lag()` function is used to calculate the spatial lag of the 'treEqty' variable using the spatial weights matrix 'wt' and the neighbor list 'nb'. The results are stored in a new column 'tes_lag' of the 'tes_nbs' object.  
+ 
+The `mutate()` function puts it all together to creates a new dataset called 'tes_nbs', which contains the original data along with the neighbor sets, spatial weights, and the spatial lag of tree equity.  
+
+&ensp;
+
+
+## **STEP 5: Visualize Spatial Lag**
+
+#### Calculating and visulaizing spatial lag helps us to detect spatial autocorrelation.
+
+*Spatial lag* is a measure of the spatially-weighted average of a variable for a given location, considering its neighboring locations. In other words, it quantifes the extent to which a location's attribute value is influenced by the values of its neighbors. This allows us to account for spatial autocorrelation in the data.
+
+High spatial lag values can indicate the presence of spatial clustering or hotspots. 
+
+```{r}
+# Visualize spatial lag of tree equity
+tes_nbs |> 
+  ggplot(aes(fill = tes_lag)) +
+  geom_sf(color = "black", lwd = 0.15)
+```
+
+The lag shows some smoothing and tree equity being a gradient.
+
+&ensp;
+
+## **STEP 6: Global Test**
+
+#### Test for global spatial autocorrelation
+
+`global_g_test()` computes a global test for spatial autocorrelation using a Monte Carlo simulation approach (simulated spatial datasets that have the same spatial structure as the original data but are randomly permuted). It tests the null hypothesis of no spatial autocorrelation against the alternative hypothesis of positive spatial autocorrelation.  
+
+This is similar to Moran's I, however the 'global_g_test' can also be used to test for local spatial autocorrelation (LISA), which we will see in the next step.  
+
+```{r}
+# Getis-Ord global G statistic
+global_g_test(tes_nbs$treEqty, tes_nbs$nb, tes_nbs$wt)
+```
+
+The results (p-value > 0.05) suggests that there is not strong evidence to reject the null hypothesis. However, this does not necessarily rule out the possibility of spatial autocorrelation at local scales.
+
+&ensp;
+
+## **STEP 7: Local Test**
+
+#### What about local clustering? 
+
+```{r}
+# Calculate the Gi using local_g_perm
+tes_hot_spots <- tes_nbs |> 
+  mutate(
+    Gi = local_g_perm(treEqty, nb, wt, nsim = 999)
+  ) |> 
+  unnest(Gi) 
+```
+
+
+We can calculate the Gi statistic using `local_g_perm()`. 'Gi' is the ratio of spatial lag to the feature's value. It helps us to find the local clusters.  
+
+We need to create a new column called 'Gi', which is the output of 'local_g_perm'. The column itself contains a dataframe that we cannot work in, so we need to `unnest` it.  
+
+The `nsim` argument specifies the number of Monte Carlo simulations to perform. The default is 999, but this value may need to be adjusted for your own study. 
+
+&ensp;
+
+Let's do a cursory visualization of Gi values across Tucson.  
+
+```{r}
+# Cursory visualization
+# Plot looks at gi values for all locations
+tes_hot_spots |> 
+  ggplot((aes(fill = gi))) +
+  geom_sf(color = "black", lwd = 0.15) +
+  scale_fill_gradient2() # makes the value 0 (random) be the middle
+
+```
+
+&ensp;
+
+## **STEP 8: Visualize Hot and Cold Spots**
+
+#### Now we can visualize hot and cold spots in Tucson based on neighborhood TES.  
+
+We will do the following:  
+ 1. Create a data frame called 'tes_hot_spots' containing the tree equity data with the columns 'gi' and 'p_folded_sim'.  
+ 2. Add a new column to the data frame called 'classification'.   
+ 3. Assign values to 'classification' based on specific criteria.   
+ 4. Convert the 'classification' column into a factor for easier plotting.  
+ 5. Visualize using ggplot2.  
+ 
+`p_folded_sim` is the p-value resulting from a folded permutation test of the local Gi statistic. In this test, the observed values of the variable being analyzed are randomly permuted across the spatial units, and the local Gi statistic is calculated for each permutation.  
+
+```{r}
+# Create a data frame called 'tes_hot_spots' that contains
+# TES data with the columns 'gi' and 'p_folded_sim'
+# Then add a classification column
+tes_hot_spots |> 
+  select(gi, p_folded_sim) |> 
+  mutate(
+    classification = case_when(
+      gi > 0 & p_folded_sim <= 0.01 ~ "Very hot",
+      gi > 0 & p_folded_sim <= 0.05 ~ "Hot",
+      gi > 0 & p_folded_sim <= 0.1 ~ "Somewhat hot",
+      gi < 0 & p_folded_sim <= 0.01 ~ "Very cold",
+      gi < 0 & p_folded_sim <= 0.05 ~ "Cold",
+      gi < 0 & p_folded_sim <= 0.1 ~ "Somewhat cold",
+      TRUE ~ "Insignificant"
+    ),
+    # Convert 'classification' into a factor for easier plotting
+    classification = factor(
+      classification,
+      levels = c("Very hot", "Hot", "Somewhat hot",
+                 "Insignificant",
+                 "Somewhat cold", "Cold", "Very cold")
+    )
+  ) |> 
+  # Visualize the results with ggplot2
+  ggplot(aes(fill = classification)) +
+  geom_sf(color = "black", lwd = 0.1) +
+  scale_fill_brewer(type = "div", palette = 5) +
+  theme_void() +
+  labs(
+    fill = "Hot Spot Classification",
+    title = "Tree Equity Hot Spots in Tucson"
+  )
+
+```
+
+&ensp;
+
+---
+
+## **Session Info**
+
+&ensp;
+
+```{r}
+sessionInfo()
+```
+
+
+
+
+
+
