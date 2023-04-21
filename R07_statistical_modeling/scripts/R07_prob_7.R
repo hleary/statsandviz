@@ -1,6 +1,6 @@
 # Problem Set: Statistical Modeling
 # Question Number 7
-# Status: Not completed
+# Status: Completed
 
 
 # 7. Researchers at the University of Arizona want to assess the germination rate 

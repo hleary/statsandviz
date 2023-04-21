@@ -1,5 +1,5 @@
 ---
-title: "Tutorial of Hotspot Analysis in R"
+title: "R Tutorial of Hotspot Analysis using Getis Ord Gi"
 author: "Heatherlee Leary"
 date: "2023-04-19"
 output: 
@@ -27,7 +27,7 @@ Imagine we want to identify local spatial patterns of TES across Tucson. Specifi
 
 &ensp;
 
-## **Spatial Autocorrelation**
+### **Spatial Autocorrelation**
 
 #### Before moving on, it's important to understand the concept of spatial autocorrelation.
 
@@ -39,7 +39,7 @@ Imagine we want to identify local spatial patterns of TES across Tucson. Specifi
 
 &ensp;
 
-## **Moran's I vs. Getis-Ord-Gi**  
+### **Moran's I vs. Getis-Ord-Gi**  
 
 #### Moran's I and Getis-Ord-Gi are both used to analyze spatial autocorrelation, but they serve different purposes:  
 
@@ -51,7 +51,7 @@ To summarize: While Moran's I is helpful in understanding the overall spatial pa
 
 &ensp;
 
-## **R Packages**
+### **R Packages**
 
 You will need the following R packages:  
 `sf`      *for simple features*  
@@ -85,12 +85,12 @@ tes_data <- st_read("data/tree_equity_data.shp")
 head(tes_data)
 ```
 
-This is a simple feature data type with 330 rows (Tucson neighborhoods).     
-It contains the following columns:   
-'NID' = unique neighborhood identifier  
-'nghbrhd' = neighborhood name  
-'treEqty' = tree equity score  
-'geometry' = spatial geometry for plotting  
+This is a simple feature data type with 330 rows (Tucson neighborhood polygons), which contains the following columns: 
+
+* NID = unique neighborhood identifier
+* nghbrhd = Tucson neighborhood name
+* treEqty = tree equity score
+* geometry = spatial polygon geometries
 
 &ensp;
 
@@ -180,11 +180,10 @@ tes_nbs <- tes_subset |>
 
 The `st_contiguity()` function is used to create a binary adjacency matrix 'nb' that indicates which polygons share a border or vertex. 'list_nb' (from Step 2) and 'nb' represent the same neighbor relationships between polygons, but in different formats: 'list_nb' is a list of neighbors, while 'nb' is a spatial weights matrix more suitable for spatial analysis and modeling.  
 
-The `st_weights()` function is used to create a row-standardized spatial weights matrix 'wt' from 'nb'. In other words, each neighborhood is weighted equally. You may need to assign weights differently in your own study.  
+The `st_weights()` function is used to create a row-standardized spatial weights matrix 'wt' from 'nb'. In other words, each Tucson neighborhood polygon is weighted equally. You may need to assign weights differently in your own study.  
 
-The `st_lag()` function is used to calculate the spatial lag of the 'treEqty' variable using the spatial weights matrix 'wt' and the neighbor list 'nb'. The results are stored in a new column 'tes_lag' of the 'tes_nbs' object.  
- 
-The `mutate()` function puts it all together to creates a new dataset called 'tes_nbs', which contains the original data along with the neighbor sets, spatial weights, and the spatial lag of tree equity.  
+The `st_lag()` function is used to calculate the spatial lag of the 'treEqty' variable using the spatial weights matrix 'wt' and the neighbor list 'nb'. The results are stored in a new column 'tes_lag'. We will explore spatial lag more in the next step.
+
 
 &ensp;
 
@@ -193,7 +192,7 @@ The `mutate()` function puts it all together to creates a new dataset called 'te
 
 #### Calculating and visulaizing spatial lag helps us to detect spatial autocorrelation.
 
-*Spatial lag* is a measure of the spatially-weighted average of a variable for a given location, considering its neighboring locations. In other words, it quantifes the extent to which a location's attribute value is influenced by the values of its neighbors. This allows us to account for spatial autocorrelation in the data.
+*Spatial lag* is a measure of the spatially-weighted average of a variable for a given location, considering its neighboring locations. In other words, it quantifies the extent to which a location's value is influenced by the values of its neighbors. This allows us to account for spatial autocorrelation in the data.
 
 High spatial lag values can indicate the presence of spatial clustering or hotspots. 
 
@@ -208,13 +207,13 @@ The lag shows some smoothing and tree equity being a gradient.
 
 &ensp;
 
-## **STEP 6: Global Test**
+## **STEP 6: Global G Test**
 
 #### Test for global spatial autocorrelation
 
 `global_g_test()` computes a global test for spatial autocorrelation using a Monte Carlo simulation approach (simulated spatial datasets that have the same spatial structure as the original data but are randomly permuted). It tests the null hypothesis of no spatial autocorrelation against the alternative hypothesis of positive spatial autocorrelation.  
 
-This is similar to Moran's I, however the 'global_g_test' can also be used to test for local spatial autocorrelation (LISA), which we will see in the next step.  
+This is similar to Moran's I, however the 'global_g_test' can be used to test for local spatial autocorrelation using the local versions of the test statistic (`local_g_test()`), which we will see in the next step.  
 
 ```{r}
 # Getis-Ord global G statistic
@@ -225,25 +224,24 @@ The results (p-value > 0.05) suggests that there is not strong evidence to rejec
 
 &ensp;
 
-## **STEP 7: Local Test**
+## **STEP 7: Local Gi Test**
 
 #### What about local clustering? 
+
+We can calculate the Gi statistic using `local_g_perm()`. The Gi is the ratio of the spatial lag of a feature to the sum of the feature's values for its neighbors. A positive Gi value indicates that a feature and its neighbors have high values, while a negative Gi value indicates that they have low values. The magnitude of the Gi value indicates the strength of the clustering.  
 
 ```{r}
 # Calculate the Gi using local_g_perm
 tes_hot_spots <- tes_nbs |> 
   mutate(
     Gi = local_g_perm(treEqty, nb, wt, nsim = 999)
+    # nsim = number of Monte Carlo simulations (999 is default)
   ) |> 
+  # The new 'Gi' column itself contains a dataframe 
+  # We can't work with that, so we need to 'unnest' it
   unnest(Gi) 
 ```
 
-
-We can calculate the Gi statistic using `local_g_perm()`. 'Gi' is the ratio of spatial lag to the feature's value. It helps us to find the local clusters.  
-
-We need to create a new column called 'Gi', which is the output of 'local_g_perm'. The column itself contains a dataframe that we cannot work in, so we need to `unnest` it.  
-
-The `nsim` argument specifies the number of Monte Carlo simulations to perform. The default is 999, but this value may need to be adjusted for your own study. 
 
 &ensp;
 
@@ -259,29 +257,27 @@ tes_hot_spots |>
 
 ```
 
+We're getting an idea of spatial patterns of TES values for Tucson neighborhoods.  
+But is it statistically significant? We will consider p-values in the next step.  
+
 &ensp;
 
 ## **STEP 8: Visualize Hot and Cold Spots**
 
-#### Now we can visualize hot and cold spots in Tucson based on neighborhood TES.  
+#### Now we can visualize hot and cold spots of TES values across Tucson.  
 
-We will do the following:  
- 1. Create a data frame called 'tes_hot_spots' containing the tree equity data with the columns 'gi' and 'p_folded_sim'.  
- 2. Add a new column to the data frame called 'classification'.   
- 3. Assign values to 'classification' based on specific criteria.   
- 4. Convert the 'classification' column into a factor for easier plotting.  
- 5. Visualize using ggplot2.  
- 
-`p_folded_sim` is the p-value resulting from a folded permutation test of the local Gi statistic. In this test, the observed values of the variable being analyzed are randomly permuted across the spatial units, and the local Gi statistic is calculated for each permutation.  
+Almost done!  
 
 ```{r}
-# Create a data frame called 'tes_hot_spots' that contains
-# TES data with the columns 'gi' and 'p_folded_sim'
-# Then add a classification column
+# Create a new data frame called 'tes_hot_spots"
 tes_hot_spots |> 
+  # with the columns 'gi' and 'p_folded_sim"
+  # 'p_folded_sim' is the p-value of a folded permutation test
   select(gi, p_folded_sim) |> 
   mutate(
+    # Add a new column called "classification"
     classification = case_when(
+      # Classify based on the following criteria:
       gi > 0 & p_folded_sim <= 0.01 ~ "Very hot",
       gi > 0 & p_folded_sim <= 0.05 ~ "Hot",
       gi > 0 & p_folded_sim <= 0.1 ~ "Somewhat hot",
@@ -312,11 +308,30 @@ tes_hot_spots |>
 
 &ensp;
 
+### **Interpretation and Takeaways**
+
+The hotspot analysis map assessing tree equity across Tucson reveals a clear pattern of spatial clustering, with hotspots in northern neighborhoods and coldspots in southern neighborhoods. This spatial clustering suggests the presence of spatial dependence in tree equity, meaning that a neighborhood's tree equity is influenced by the tree equity of its neighboring neighborhoods. This highlights the importance of considering spatial relationships in tree planting initiatives to ensure more equitable distribution of trees across the city. Comparatively, a simple distribution map of TES values across Tucson would not reveal this spatial clustering and would therefore not provide the same level of insight into the distribution of tree equity in the city.
+
+
+&ensp;
+&ensp;
+
+---
+
+## **Disclaimer and Acknowledgements**
+
+**Disclaimer**  
+This tutorial was created by a non-expert for educational purposes only. While efforts have been made to ensure the accuracy of the information provided, users should verify any information before applying it to their own analysis. The author accepts no responsibility or liability for any errors or omissions, or for any damage or loss arising from the use of this tutorial.  
+
+**Acknowledgements**  
+Tree equity data was obtained from the [City of Tucson's open data platform](https://gisdata.tucsonaz.gov/datasets/cotgis::tree-equity-scores-tucson-1/about). The code used in this tutorial is adapted and modified from Josiah Parry's YouTube tutorial ["Hotspot Analysis in R: GIS Fundamentals"](https://www.youtube.com/watch?v=OnMNZwJywjs&t=360s), accessible from his [GitHub](https://github.com/JosiahParry/youtube-tutorials/tree/main/hot-spot-analysis).
+
+&ensp;
+&ensp;
+
 ---
 
 ## **Session Info**
-
-&ensp;
 
 ```{r}
 sessionInfo()
