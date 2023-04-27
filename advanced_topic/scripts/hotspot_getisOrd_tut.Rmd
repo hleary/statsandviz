@@ -1,7 +1,7 @@
 ---
-title: "R Tutorial of Hotspot Analysis using Getis Ord Gi"
+title: "R Tutorial: Hotspot Analysis using Getis Ord Gi"
 author: "Heatherlee Leary"
-date: "2023-04-19"
+date: "2023-04-27"
 output: 
   html_document:
     toc: yes
@@ -19,7 +19,13 @@ knitr::opts_knit$set(root.dir = "C:/Users/hlear/Desktop/statsandviz/advanced_top
 
 ## **Introduction**
 
-#### This tutorial will walk you through the steps and R code to perform a hotspot analysis using the Getis Ord Gi method. 
+#### This tutorial will walk you through the steps and R code to perform a hotspot analysis using the Getis Ord Gi method.    
+
+**Note:** Getis Ord Gi and Gi* are the same thing.  
+
+&ensp;
+
+### **Example Scenario**
 
 As an example, we will look at tree equity score data for the city of Tucson, Arizona, USA. A tree equity score (TES) is "a metric that helps cities assess how well they are delivering equitable tree canopy cover to all residents. It is derived from tree canopy cover, climate, demographic and socioeconomic data" [(American Forests 2023)](https://www.treeequityscore.org/methodology/). TES values range from 0 - 100, with a lower score indicating lower equity.  
 
@@ -33,17 +39,15 @@ Imagine we want to assess spatial patterns of TES across Tucson. Specifically, w
 
 *Spatial autocorrelation* is a measure of how a set of spatial features or their associated values are related to each other in space. It describes the extent to which nearby features or values are similar (clustered) or dissimilar (dispersed).     
 
-Spatial Autocorrelation can be positive or negative. Positive spatial autocorrelation indicates that features or values are clustered in space, and nearby locations tend to have similar values or characteristics. Negative spatial autocorrelation indicates that features or values are dispersed in space,and nearby locations tend to have dissimilar values or characteristics.  
+Spatial Autocorrelation can be positive or negative. Positive spatial autocorrelation indicates that features or values are clustered in space, and nearby locations tend to have similar values or characteristics. Negative spatial autocorrelation indicates that features or values are dispersed in space, and nearby locations tend to have dissimilar values or characteristics.  
 
 Spatial autocorrelation can be evaluated at a global or local level. Global spatial autocorrelation provides an overall assessment of the spatial pattern across the entire study area, while a local indicator of spatial association (LISA) identifies hotspots and coldspots of high or low values for each feature, offering a more detailed analysis of spatial patterns.
 
 &ensp;
 
-### **Local Moran's I vs. Getis-Ord-Gi**  
+A free eBook on Geospatial Analysis: [de Smith, M. J., Goodchild, M. F., Longley, P. A. & Associates. (2018). Geospatial Analysis: A Comprehensive Guide to Principles, Techniques and Software Tools (6th ed.)](https://www.spatialanalysisonline.com/HTML/index.html). See the section on [Local Indicators of Spatial Association](https://www.spatialanalysisonline.com/HTML/index.html?local_indicators_of_spatial_as.htm). 
 
-#### Moran's I and Getis Ord Gi are both used to analyze spatial autocorrelation, but they serve different purposes:  
 
-Local Moran's I and Getis Ord Gi (AKA Gi*, or Gi "star") address similar questions but differ in how they handle the analysis of individual features. With Local Moran's I, the value of the feature being analyzed is not included in the analysis; only the values of its neighbors are considered. In contrast, when using Getis-Ord Gi, the value of each feature is included in its own analysis. This means that the local mean for Moran's I includes only neighboring features, while the local mean for Getis-Ord Gi includes all features, including the one being analyzed. Determining the most appropriate method for your own study depends on the research question, study design, and the underlying data.
 
 &ensp;
 
@@ -67,11 +71,11 @@ require(ggplot2)   # Data visualization`
 
 &ensp;
 
-## **STEP 1: Raw Data**
+## **Explore Raw Data**
 
 #### As with any analysis, we begin by exploring the raw data.  
 
-I have already cleaned this dataset and removed NA values. The original TES dataset can be accessed from the [City of Tucson's open data platform](https://gisdata.tucsonaz.gov/datasets/cotgis::tree-equity-scores-tucson-1/about)  
+I have already cleaned this dataset and *removed NA values*. The original TES dataset can be accessed from the [City of Tucson's open data platform](https://gisdata.tucsonaz.gov/datasets/cotgis::tree-equity-scores-tucson-1/about)  
 
 ```{r}
 # Read in data
@@ -112,7 +116,7 @@ ggplot(tes_data) +
 
 &ensp;
 
-## **STEP 2: Neighbor List**
+## **Check Empty Neighbor Sets**
 
 #### Create a list of neighbors for each polygon in 'tes_data'.  
 
@@ -125,13 +129,11 @@ The `poly2nb()` function creates a list of neighbors for each polygon in 'tes_da
 
 &ensp;
 
-## **STEP 3: Empty Neighbor Sets**
-
 #### Next, we check for empty neighbor sets (polygons without neighbors).   
 
 If there are empty neighbors, then this will eventually cause an error and prevent the analysis from running.  
 
-There are a few ways to address empty neighbor sets. Here, we can simply remove them. Note that removing empty neighbor sets could impact the results of spatial analyses. Carefully consider whether this is an appropriate approach for your own analyses.  
+There are a few ways to address empty neighbor sets. Here, we can simply remove them. Note that removing empty neighbor sets could impact the results of spatial analyses.  
 
 ```{r}
 # Check for empty neighbor sets
@@ -158,9 +160,47 @@ empty_polygons$nghbrhd  # print neighborhood names
 
 &ensp;
 
-## **STEP 4: Spatial Weights and Spatial Lag**
+## **Global G Test**
 
-#### Create spatial weights and calculate the spatial lag of the 'treEqty' variable for the polygons in 'tes_subset'.    
+#### Test for global spatial autocorrelation
+
+`globalG.test` (or `global_g_test()`) computes a global test for spatial autocorrelation using a Monte Carlo simulation approach (simulated spatial datasets that have the same spatial structure as the original data but are randomly permuted). It tests the null hypothesis of no spatial autocorrelation against the alternative hypothesis of positive spatial autocorrelation.    
+
+```{r}
+# Now that we removed empty neighbor sets (tes_subset)
+# Identify neighbors with queen contiguity (edge/vertex touching)
+tes_nb <- poly2nb(tes_subset, queen = TRUE)
+
+# Binary weighting assigns a weight of 1 to all neighboring features 
+# and a weight of 0 to all other features
+tes_w_binary <- nb2listw(tes_nb, style="B")
+
+# Calculate spatial lag of TreEqty
+tes_lag <- lag.listw(tes_w_binary, tes_subset$treEqty)
+```
+
+I used binary weighting to assess the overall spatial distribution. Binary weighting assigns a weight of 1 to all neighboring features (ignoring relative size or extent) and a weight of 0 to all other features. More about this can be learned from ESRI's article ["How High/Low Clustering (Getis-Ord General G) works"](https://pro.arcgis.com/en/pro-app/latest/tool-reference/spatial-statistics/h-how-high-low-clustering-getis-ord-general-g-spat.htm#:~:text=High%2FLow%20Clustering%20will%20only%20work%20with%20positive%20values.,binary%20weighting%20scheme%20is%20recommended%20for%20this%20statistic.) and ["Spatial Weights"](https://pro.arcgis.com/en/pro-app/latest/tool-reference/spatial-statistics/spatial-weights.htm#:~:text=Variable%20weights%20fall%20into%20a%20range%20from%200,where%20features%20have%20an%20unequal%20number%20of%20neighbors.), though there are many resources available.  
+
+&ensp;
+
+```{r}
+# Test for global G statistic of TreEqty
+globalG.test(tes_subset$treEqty, tes_w_binary)
+```
+
+**Global G Test Interpretation**
+
+The output shows a standard deviate of 2.419, which indicates that the observed clustering of tree equity is 2.419 standard deviations away from what would be expected under the null hypothesis of no clustering. This value is associated with a p-value of 0.007783, so observed clustering is statistically significant at the 0.05 level. The alternative hypothesis is "greater," which means that the analysis is looking for clusters of high tree equity values.  
+
+The sample estimates of the Global G statistic, Expectation, and Variance are also reported. The Global G statistic is 1.567748e-02, which is the observed value of the clustering statistic for the entire dataset. The Expectation is 1.536557e-02, which is the expected value of the clustering statistic under the null hypothesis of no clustering. Finally, the Variance is 1.662723e-08, which is an estimate of the variance of the clustering statistic under the null hypothesis.  
+
+Overall, the output suggests that there is statistically significant clustering of high tree equity values.  
+
+&ensp;
+
+## **Local Gi Test**
+
+#### Test for local spatial autocorrelation (hotspots)  
 
 ```{r}
 # Identify neighbors, create weights, calculate spatial lag
@@ -173,56 +213,7 @@ tes_nbs <- tes_subset |>
 
 ```
 
-
-The `st_contiguity()` function is used to create a binary adjacency matrix 'nb' that indicates which polygons share a border or vertex. 'list_nb' (from Step 2) and 'nb' represent the same neighbor relationships between polygons, but in different formats: 'list_nb' is a list of neighbors, while 'nb' is a spatial weights matrix more suitable for spatial analysis and modeling.  
-
-The `st_weights()` function is used to create a row-standardized spatial weights matrix 'wt' from 'nb'. In other words, each Tucson neighborhood polygon is weighted equally. You may need to assign weights differently in your own study.  
-
-The `st_lag()` function is used to calculate the spatial lag of the 'treEqty' variable using the spatial weights matrix 'wt' and the neighbor list 'nb'. The results are stored in a new column 'tes_lag'. We will explore spatial lag more in the next step.
-
-
 &ensp;
-
-
-## **STEP 5: Visualize Spatial Lag**
-
-#### Calculating and visulaizing spatial lag helps us to detect spatial autocorrelation.
-
-*Spatial lag* is a measure of the spatially-weighted average of a variable for a given location, considering its neighboring locations. In other words, it quantifies the extent to which a location's value is influenced by the values of its neighbors. This allows us to account for spatial autocorrelation in the data.
-
-High spatial lag values can indicate the presence of spatial clustering or hotspots. 
-
-```{r}
-# Visualize spatial lag of tree equity
-tes_nbs |> 
-  ggplot(aes(fill = tes_lag)) +
-  geom_sf(color = "black", lwd = 0.15)
-```
-
-The lag shows some smoothing and tree equity being a gradient.
-
-&ensp;
-
-## **STEP 6: Global G Test**
-
-#### Test for global spatial autocorrelation
-
-`global_g_test()` computes a global test for spatial autocorrelation using a Monte Carlo simulation approach (simulated spatial datasets that have the same spatial structure as the original data but are randomly permuted). It tests the null hypothesis of no spatial autocorrelation against the alternative hypothesis of positive spatial autocorrelation.  
-
-This is similar to Moran's I, however the 'global_g_test' can be used to test for local spatial autocorrelation using the local versions of the test statistic (`local_g_test()`), which we will see in the next step.  
-
-```{r}
-# Getis-Ord global G statistic
-global_g_test(tes_nbs$treEqty, tes_nbs$nb, tes_nbs$wt)
-```
-
-The results (p-value > 0.05) suggests that there is not strong evidence to reject the null hypothesis. However, this does not necessarily rule out the possibility of spatial autocorrelation at local scales.
-
-&ensp;
-
-## **STEP 7: Local Gi Test**
-
-#### What about local clustering? 
 
 We can calculate the Gi statistic using `local_g_perm()`. The Gi is the ratio of the spatial lag of a feature to the sum of the feature's values for its neighbors. A positive Gi value indicates that a feature and its neighbors have high values, while a negative Gi value indicates that they have low values. The magnitude of the Gi value indicates the strength of the clustering.  
 
@@ -253,14 +244,9 @@ tes_hot_spots |>
 
 ```
 
-We're getting an idea of spatial patterns of TES values for Tucson neighborhoods.  
-But is it statistically significant? We will consider p-values in the next step.  
+We're getting an idea of spatial patterns of TES values for Tucson neighborhoods. But is it statistically significant? We will consider p-values in the next step.  
 
 &ensp;
-
-## **STEP 8: Visualize Hot and Cold Spots**
-
-#### Now we can visualize hot and cold spots of TES values across Tucson.  
 
 Almost done!  
 
@@ -304,9 +290,9 @@ tes_hot_spots |>
 
 &ensp;
 
-### **Interpretation and Takeaways**
+**Hotspot Analysis Interpretation**
 
-The hotspot analysis map assessing tree equity across Tucson reveals a clear pattern of spatial clustering, with hotspots in northern neighborhoods and coldspots in southern neighborhoods. This spatial clustering suggests the presence of spatial dependence in tree equity, meaning that a neighborhood's tree equity is influenced by the tree equity of its neighboring neighborhoods. This highlights the importance of considering spatial relationships in tree planting initiatives to ensure more equitable distribution of trees across the city. Comparatively, a simple distribution map of TES values across Tucson would not reveal this spatial clustering and would therefore not provide the same level of insight into the distribution of tree equity in the city.
+The hotspot analysis map assessing tree equity across Tucson reveals a clear pattern of spatial clustering, with hotspots in northern neighborhoods and coldspots in southern neighborhoods.
 
 
 &ensp;

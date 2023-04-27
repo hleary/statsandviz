@@ -5,12 +5,16 @@
 
 
 # Load data
-dragons <- load("R07_statistical_modeling/data/dragons.RData")
+dragons_data <- load("R07_statistical_modeling/data/dragons.RData")
 
 # Explore data
 print(dragons)    # display names of objects that were loaded
 str(dragons)      # structure
 summary(dragons)  # summary
+
+# This script works fine outside of Markdown
+# But to fix the error in Markdown:
+# Export and read in the data frame separately (annoying...)
 
 
 # a) Perform a simple linear regression with testScore as response and bodyLength as explanatory

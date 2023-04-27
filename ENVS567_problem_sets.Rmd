@@ -1,0 +1,2374 @@
+---
+title: 'Problem Sets'
+author: "Heatherlee Leary"
+date: "2023-02-08"
+output: 
+  html_document: 
+    theme: cerulean
+    toc: yes
+    highlight: tango
+---
+
+---
+
+**Disclaimer**  
+
+This document is for educational purposes only, as a requirement for the completion of a university statistics course.   
+
+**GitHub**  
+
+Individual scripts and datasets can be found on GitHub: [https://github.com/hleary/statsandviz](https://github.com/hleary/statsandviz)
+
+
+
+---
+
+## **Problem Set 1: R Language**
+
+&ensp;
+
+### **Question 1**
+
+#### Install the ISwR R package. 
+#### Write the built-in dataset thuesen to a tab-separated text file.
+#### View it with a text editor. 
+#### Change the NA to . (period)
+#### Read the changed file back into R.
+
+&ensp;
+
+```{r}
+
+# Install and load the ISwR R Package.
+install.packages("ISwR", repos = "http://cran.us.r-project.org")
+library("ISwR")
+
+
+# Write the built-in dataset thuesen to a tab-separated text file. 
+data(package = "ISwR") # Run to see the data sets within the ISwR package.
+thuesen_df <- as.data.frame(thuesen)  # Read the dataset thuesen in the package ISwR
+head(thuesen_df) # View the first few rows of the dataset thuesen
+write.table(thuesen_df, "C:\\Users\\hlear\\Desktop\\statsandviz\\R01_r_language\\data\\thuesen_tab.txt", row.names=FALSE) # Don't export row names.
+
+
+# I viewed thuesen_tab in Notepad and changed "NA" to "." (period)
+
+
+# Read the changed file back into R.
+thuesen_tab <- read.table(file = "C:\\Users\\hlear\\Desktop\\statsandviz\\R01_r_language\\data\\thuesen_tab.txt", header = TRUE) # Has a header
+head(thuesen_tab)
+
+```
+
+
+---
+
+### **Question 2**
+
+#### The exponential growth of a population is described by this mathematical function: Nt=Ni * e^rt
+
+#### where Nt is the population size at time t, Ni is the initial population size, and r is the rate of growth or reproductive rate.
+
+&ensp;
+
+#### Write an exponential growth function in R that also generates a plot with time on the x axis and Nt on the y axis. Using that function, create plots for 20 days assuming an initial population size of 10 individuals under three growth rate scenarios (0.5, 0.8, -0.1).
+
+&ensp;
+
+```{r}
+
+# Write an exponential growth function.
+Ni <- 10
+t <- c(1:20)
+
+
+Nt <- function(r){
+  Nt <- Ni * exp(r*t)
+  plot(t, Nt)
+}
+
+
+# Test under three growth rate scenarios.
+Nt(0.5)
+Nt(0.8)
+Nt(-0.1)
+
+```
+
+
+---
+
+### **Question 3**
+
+#### Under highly favorable conditions, populations grow exponentially.However resources will eventually limit population growth and exponential growth cannot continue indefinitely. This phenomenon is described by the logistic growth function: Nt=(K*Ni)/(Ni+(K-Ni)e^(-rt)) 
+
+#### where K is the carrying capacity. 
+
+&ensp;
+
+#### Write a logistic growth function in R that also generates a plot with time on the x axis and Nt on the y axis. Using that function create plots for 20 days assuming an initial population size of 10 individuals and a carrying capacity of 1,000 individuals under three growth rate scenarios (0.5, 0.8, 0.4).
+
+&ensp;
+
+```{r}
+
+# Logistic growth function.
+Ni <- 10
+t <- c(1:20)
+K <- 1000
+
+log_growth <- function (r) {
+  Nt <- K*Ni/(Ni+(K-Ni) * exp(1)^(-r*t))
+  plot(t, Nt, xlab="Time", ylab="Population size")
+       }
+
+# Test under three growth rate scenarios
+log_growth(0.5)
+log_growth(0.8)
+log_growth(0.4)
+
+```
+
+
+---
+
+### **Question 4**
+
+#### Write a function (sum_n) that for any given value, say n, computes the sum of the integers from 1 to n (inclusive). Use the function to determine the sum of integers from 1 to 5,000.
+
+&ensp;
+
+```{r}
+
+# Write a function that computes the sum of integers from 1 to n (inclusive).
+sum_n <- function(n){sum(1:n)}
+
+
+# Quick test with n = 5. 
+1+2+3+4+5 # Run this to see what the sum of integers from 1 to 5 equals.
+sum_n(5) # Now test the function with n = 5.
+
+
+# Use the function to determine the sum of integers from 1 to 5,000.
+sum_n(5000)
+
+```
+
+
+---
+
+### **Question 5**
+
+#### Write a function (sqrt_round) that takes a number x as input, takes the square root, rounds it to the nearest whole number and then returns the result.
+
+&ensp;
+
+```{r}
+
+sqrt_round <- function(x) {
+  result <- round(sqrt(x))
+  return(result)
+}
+
+
+# Test
+sqrt(17)
+sqrt_round(17)
+
+```
+
+
+---
+
+### **Question 6**
+
+#### Install the R package ‘nycflights13’, and load the ‘weather’ data.
+#### a) Explore the columns names and the top part of the dataset to get a sense of the data
+#### b) Make a subset of the data from just the first month (1) and then save that subset as ‘weather1’
+#### c) Using ggplot2, make a beautiful histogram of the variable ‘temp’
+#### d) Using ggplot2, make a beautiful line plot of ‘temp’ as a function of ‘time_hour’
+#### e) Using ggplot2, make a beautiful boxplot of ‘temp’ as a function of ‘origin’
+
+&ensp;
+
+```{r}
+
+# Install the R package ‘nycflights13’, and load the ‘weather’ data.
+install.packages("nycflights13", repos = "http://cran.us.r-project.org")
+data(package = "nycflights13") # Run to see data sets within the nycflights13 package. Weather is in there.
+library(nycflights13)
+
+
+# a) Explore the column names and top part of the dataset to get a sense of the data.
+colnames(weather) # View column names only.
+head(weather) # View top part of the data.
+
+
+# b) Make a subset of the data from just the first month (1) and then save that subset as ‘weather1’.
+weather # View the "weather" data set.
+weather1 <- subset(weather, weather$month ==1)
+
+# Test
+# The subset was too big to see here, so I ended up viewing it outside of R to confirm.
+# There is likely a more efficient method using code, but I don't know it.
+# weather1
+# write.table(weather1, "C:\\Users\\hlear\\Desktop\\statsandviz\\r_language\\data\\weather1.tab", row.names=FALSE)
+
+
+# c) Using ggplot2, make a beautiful histogram of the variable ‘temp’
+library(tidyverse)
+ggplot(data = weather, aes(x = temp)) + geom_histogram() # Not beautiful...
+
+# Make pretty
+ggplot(data = weather, aes(x = temp)) + geom_histogram(col = "white", 
+                                                       fill = "red") +
+  labs(title = "Temperatures during NYC Flight Departures (2013)",
+       x = "Temperature (F)",
+       y = "Count")
+
+
+# d) Using ggplot2, make a beautiful line plot of ‘temp’ as a function of ‘time_hour’
+ggplot(weather, aes(x = time_hour, y = temp)) + geom_line(color = "steelblue") +
+  labs(title = "NYC Departure Temperatures Over Time (2013)",
+       x = "Time (hrs)",
+       y = "Temp (F)")
+
+# e) Using ggplot2, make a beautiful boxplot of ‘temp’ as a function of ‘origin’
+ggplot(weather1, aes(x = origin, y = temp)) +
+  geom_boxplot() +
+  labs(title = "Temperature by Origin (2013)",
+       x = "Origin",
+       y = "Temperature (F)")
+
+```
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 2: Fundamentals of Statistics**
+
+&ensp; 
+
+### **Question 1**
+
+#### A researcher videotaped the glides of 8 tree snakes leaping from a 10-m tower. Undulation rates of the snakes measured in hertz (cycles per second) were as follows: 0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6.
+
+#### a) Draw a histogram of the undulation rate
+#### b) Calculate the sample mean
+#### c) Calculate the range
+#### d) Calculate the standard deviation
+#### e) Write a function to express the standard deviation as a percentage of the mean (that is, the coefficient of variation) and calculate it.
+
+
+&ensp;
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(ggplot2)
+
+# Put rates into a vector
+und_rates <- c(0.9, 1.4, 1.2, 1.2, 1.3, 2.0, 1.4, 1.6)
+
+
+# Draw histogram
+hist(und_rates, xlab = "Hertz", ylab = "Frequency", main = "Undulation Rates of Tree Snakes")
+
+# Calculate sample mean
+mean(und_rates) 
+
+# Calculate range
+range(und_rates) 
+
+# Calculate standard deviation
+sd(und_rates) 
+
+
+# Write a function to express the standard deviation 
+# as a percentage of the mean (that is, the coefficient of variation (CV)) and calculate it.
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(und_rates) 
+```
+
+---
+
+### **Question 2**
+
+#### Blood pressure was measured (in units of mm Hg). Here are the measurements: 112, 128, 108, 129, 125, 153, 155, 132, 137.
+#### a) How many individuals are in the sample?
+#### b) What is the mean of this sample?
+#### c) What is the variance?
+#### d) What is the standard deviation?
+#### e) What is the coefficient of variation?
+
+&ensp;
+
+```{r}
+# Assign blood pressure measurements (bp) to a vector
+bp <- c(112, 128, 108, 129, 125, 153, 155, 132, 137)
+
+# a) How many individuals are in the sample?
+length(bp)
+
+# b) What is the mean of this sample?
+mean(bp)
+
+# c) What is the variance?
+var(bp)
+
+# d) What is the standard deviation?
+sd(bp)
+
+# e) What is the coefficient of variation?
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(bp)
+```
+
+
+---
+
+### **Question 3**
+
+#### The data in the file DesertBirdAbundance.csv are from a survey of the breeding birds of Organ Pipe Cactus National Monument in southern Arizona.
+#### a) Draw a histogram of the abundance data.
+#### b) Calculate the median and the mean of the bird abundance data.
+#### c) In this particular case, which do you think is the best measure of center, the mean or the median?
+#### d) Calculate the range, standard deviation, variance and coefficient of variation of the bird abundance data.
+
+```{r}
+# Read in the Desert Bird Abundance csv file.
+birdset <- read.csv(file = "C:\\Users\\hlear\\Desktop\\statsandviz\\R02_fundamentals_statistics\\data\\DesertBirdAbundance.csv", header = TRUE)
+
+# Explore
+head(birdset)
+class(birdset)
+
+# a) Histogram using ggplot2
+ggplot(birdset, aes(x=abundance))+   
+  geom_histogram(fill = "steelblue") +
+  labs(title = "Histogram of Desert Bird Abundance", x = "Abundance", y = "Frequency")
+
+# b) Median and Mean
+mean(birdset$abundance)
+median(birdset$abundance)
+
+# c) Best measure of center in this case? 
+# The median 
+
+# d) Range, SD, variance, and CV
+range(birdset$abundance)
+sd(birdset$abundance)
+var(birdset$abundance)
+
+coef_var <- function(x) {
+  sd(x) / mean(x) * 100
+}
+coef_var(birdset$abundance)
+  
+  
+```
+
+
+---
+
+### **Question 4**
+
+#### Calculate the probability of each of the following events:
+#### a) A standard normally distributed variable is larger than 3
+#### b) A normally distributed variable with mean 35 and standard deviation 6 is larger than 42
+#### c) Getting 10 out of 10 successes in a binomial distribution with probability 0.8
+#### d) X > 6.5 in a Chi-squared distribution with 2 degrees of freedom
+
+&ensp;
+
+```{r}
+# a) A standard normally distributed variable is larger than 3
+pnorm(3, lower.tail = FALSE)
+
+# b) A normally distributed variable with mean 35 and standard deviation 6 is larger than 42
+pnorm(42, mean = 35, sd = 6, lower.tail = FALSE)
+
+# c) Getting 10 out of 10 successes in a binomial distribution with probability 0.8
+dbinom(10, size = 10, prob = 0.8) # dbinom instead of pbinom because it's a discrete probability, we're not integrating anything.
+
+# d) X > 6.5 in a Chi-squared distribution with 2 degrees of freedom
+pchisq(6.5, df = 2, lower.tail = FALSE)
+```
+
+
+---
+
+### **Question 5**
+
+#### Demonstrate graphically the central limit theorem (by sampling and calculating the mean) using a Binomial distribution with 10 trials (size=10) and 0.9 probability of success (prob=0.9) and a sample size of 5.
+
+&ensp;
+
+```{r}
+# Create a vector to store the mean of each sample
+means <- numeric(1000)
+
+# Loop to generate 1000 samples of size 5 from the Binomial distribution
+for (i in 1:1000) {
+  sample <- rbinom(5, size= 10, prob= 0.9) # generate sample of size 5
+  means[i] <- mean(sample) # calculate mean of the sample
+}
+
+# Plot the histogram of the sample means
+hist(means, main = "Histogram of Sample Means", xlab = "Sample Mean")
+```
+
+
+---
+
+### **Question 6**
+
+#### Imagine height is genetically determined by the combined (that is, the sum) effect of several genes (polygenic trait). Assume that each gene has an effect on height as a uniform distribution with min=1 and max=3. Simulate an stochastic model of height for 1,000 random people based on 1 gene, 2 genes, and 5 genes. As we increase the number of genes, what is the resulting height distribution?
+
+&ensp;
+
+```{r}
+hist(runif(1000,1,3))
+
+hist((runif(1000,1,3)) + runif(1000,1,3))
+
+hist(runif(1000,1,3) + runif(1000,1,3) + runif(1000,1,3) + runif(1000,1,3) + runif(1000,1,3))
+
+
+# As we increase the number of genes, what is the resulting height distribution?
+# As we increase the number of genes, the height distribution becomes more narrow and less variable.
+# Increasing sample size reduces sampling error / spread. 
+```
+
+
+---
+
+### **Question 7**
+
+#### Do the same as in the previous problem but now assuming that the combined effect of the genes is multiplicative (not the sum). As we increase the number of genes, what is the resulting height distribution?
+
+&ensp;
+
+```{r}
+hist(runif(1000,1,3))
+
+hist((runif(1000,1,3)) * runif(1000,1,3))
+
+hist(runif(1000,1,3) * runif(1000,1,3) * runif(1000,1,3) * runif(1000,1,3) * runif(1000,1,3))
+
+# As we increase the number of genes, what is the resulting height distribution?
+# As we increase the number of genes, the resulting height distribution becomes more right-skewed. 
+```
+
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 3: Statistical Tests**
+
+&ensp;
+
+### **Question 1**
+
+#### Normal human body temperature is 98.6 F. Researchers obtained body-temperature measurements on randomly chosen healthy people: 98.4, 98.6, 97.8, 98.8, 97.9, 99.0, 98.2, 98.8, 98.8, 99.0, 98.0, 99.2, 99.5, 99.4, 98.4, 99.1, 98.4, 97.6, 97.4, 97.5, 97.5, 98.8, 98.6, 100.0, 98.4.
+#### a) Make a histogram of the data
+#### b) Make a normal quantile plot
+#### c) Perform a Shapiro-Wilk test to test for normality
+#### d) Are the data normally distributed?
+#### e) Are these measurements consistent with a population mean of 98.6 F?
+
+&ensp;
+
+```{r}
+# Put body temp values into a vector
+temp <- c(98.4, 98.6, 97.8, 98.8, 97.9, 99.0, 98.2, 98.8, 98.8, 99.0, 98.0, 99.2, 99.5, 99.4, 98.4, 99.1, 98.4, 97.6, 97.4, 97.5, 97.5, 98.8, 98.6, 100.0, 98.4)
+
+# a) Histogram 
+hist(temp)
+
+# b) Normal Quantile Plot
+qqnorm(temp)
+qqline(temp)
+
+# c) Shapiro-Wilk Test
+shapiro.test(temp)
+
+# d) Are the data normally distributed?
+# Yes. Points follow the QQ line closely, indicating the data follows a normal distribution.
+# Also, the Shapiro-Wilk test p-value > 0.05, which means we fail to reject the null.
+
+# e) Are these measurements consistent with a population mean of 98.6 F? 
+t.test(temp, mu=98.6)
+
+# Yes, the measurements are consistent with a mean of 98.6 F. 
+# The p-value of 0.5802 is > 0.05, and 98.6 falls within the confidence intervals of the mean.
+# We fail to reject the null.
+```
+
+
+---
+
+### **Question 2**
+
+#### The brown recluse spider often lives in houses throughout central North America. A diet-preference study gave each of 41 spiders a choice between two crickets, one live and one dead. 31 of the 41 spiders chose the dead cricket over the live one. Does this represent evidence for a diet preference?
+
+&ensp;
+
+```{r}
+# Define the number of spiders and the number choosing the dead cricket
+n <- 41
+dead <- 31
+
+# Binomial test
+# Analyzing proportions with only 2 outcomes
+binom.test(dead, n, p=0.5)
+
+# Print the p-value
+binom.test(dead, n, p=0.5)$p.value
+
+# Does this represent evidence for a diet preference?
+# Yes. The p-value is < 0.05, which means there is enough evidence to reject the null. 
+```
+
+
+---
+
+### **Question 3**
+
+#### Ten epileptic patients participated in a study of a new anticonvulsant drug. During the first 8-week period, half the patients received a placebo and half were given the drug, and the number of seizures were recorded. Following this, the same patients were given the opposite treatment and the number of seizures were recorded. Assuming that the distribution of the difference between the placebo and drug meets the assumption of normality, perform an appropriate test to determine whether there were differences in the number of epileptic seizures with and without the drug.
+
+#### a) Make a boxplot of the data
+#### b) Test the difference
+
+&ensp;
+
+```{r}
+# Put values into vectors
+placebo = c(37, 52, 68, 4, 29, 32, 19, 52, 19, 12)
+drug = c(5, 23, 40, 3, 38, 19, 9, 24, 17, 14)
+
+# a) Create boxplot
+boxplot(placebo, drug, names=c("Placebo", "Drug"), main="Boxplot of Number of Seizures")
+
+# b) Test the difference
+# Paired t-test: Both treatments are applied to every sampled unit.
+t.test(placebo, drug, paired=TRUE)
+
+# View p-value:
+t.test(placebo, drug, paired=TRUE)$p.value
+
+# The p-value is < 0.05, which indicates a significant difference.
+```
+
+
+---
+
+### **Question 4**
+
+#### A bee biologist is analyzing whether there was an association between bee colony number and type of forest habitat. We expect that there is no habitat preference for bee colony number. Is this true based on this data?
+
+#### a) Make a barplot of the data
+#### b) Test the hypothesis of no-association
+
+&ensp;
+
+```{r}
+# Put the data into a vector
+data <- c("Oak"=33, "Hickory"=30, "Maple"=29, "Red Cedar"=4, "Poplar"=4)
+
+# Barplot
+barplot(data)
+
+# Test hypothesis of no-association
+# Chi-squared goodness-of-fit test:
+# Measures the discrepancy between an observed frequency distribution and the frequencies expected under a random model
+chisq.test(data)
+
+# Show p-value
+chisq.test(data)$p.value
+
+# The p-value is > 0.05, suggesting there is evidence for habitat preference for bee colony number.
+
+```
+
+
+---
+
+### **Question 5**
+
+#### Perform 10 one-sample t-tests for mu=0 on simulated standard normally distributed data of 25 observations each and get the P-value. Repeat the experiment, but instead simulate samples of 25 observations from a t-distribution with 2 degrees of freedom. Find a way to automate the first experiment to do it a 1,000 times and applying a false discovery rate correction to the P-values
+
+&ensp;
+
+```{r}
+# Perform 10 one-sample t-tests for mu=0 on simulated standard normally distributed data of 25 observations each and get the P-value.
+t.test(rnorm(25), mu=0)$p.value
+replicate(10, t.test(rnorm(25), mu=0)$p.value) # replicates x10
+
+# Repeat the experiment, but instead simulate samples of 25 observations from a t-distribution with 2 degrees of freedom. 
+t.test(rt(25, df=2), mu=0)$p.value
+replicate(10, t.test(rt(25, df=2), mu=0)$p.value) # replicates x10
+
+# Automate x1000 and apply FDR correction
+experiment.pval.fdr<-p.adjust(replicate(1000, t.test(rnorm(25), mu=0)$p.value), method="fdr")
+
+# Test
+head(experiment.pval.fdr)
+length(experiment.pval.fdr) # The number of elements in a vector
+```
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 4: ANOVA**
+
+### **Question 1**
+
+#### You are hired by the US Department of Agriculture to develop effective control practices for invasive plants (data_ANOVA.xlsx). In particular, you are asked to investigate pesticide controls for kudzu which is an invasive vine that grows in thick mats that smother underlying plants. Two of the most widely used pesticides for kudzu are glyphosate and triclopyr. To determine the effectiveness of a single application of pesticide, you conduct an experiment in 18 plots that each had 50% kudzu cover. In mid-summer, you applied equal amounts of 2% glyphosate to 6 plots, 2% triclopyr to 6 plots, and water without pesticides to 6 plots. Then you returned in autumn and measured the percent cover of kudzu in the plots.
+
+&ensp;
+
+
+```{r}
+# Load libraries
+library(readxl)    # read xlsx format
+library(reshape2)  # to use the melt function
+library(ggplot2)   # for data viz
+```
+
+$ensp; 
+
+#### a) Transform the data from wide to long format
+
+```{r}
+# Read in  wide format data
+data_wide <- read_xlsx("C:\\Users\\hlear\\Desktop\\statsandviz\\R04_anova\\data\\data_ANOVA.xlsx")
+
+# Explore data
+head(data_wide)
+colnames(data_wide)
+class(data_wide)
+
+# Melt the data into long format
+data_long <- melt(data_wide, id.vars = NULL)
+
+# Explore data
+data_long
+colnames(data_long)
+class(data_long)
+
+```
+
+&ensp;
+
+#### b) Make a boxplot of the data
+
+```{r}
+# boxplot using ggplot2
+
+ggplot(data_long, aes(x = variable, y = value)) +
+  geom_boxplot() +
+  ggtitle("Percent Cover of Kudzu After Treatment") +
+  xlab("Treatment") +
+  ylab("Percent Cover")
+
+```
+
+&ensp;
+
+#### c) Perform an ANOVA
+
+In this output, the p-value is very small (1.318e-07), 
+which suggests that there is a significant difference between the means of the groups. 
+The "***" sign next to the p-value indicates that the results are highly significant (p < 0.001).
+
+```{r}
+# Fit a linear regression model
+model <- lm(value ~ variable, data = data_long)
+
+# Perform an ANOVA on the model
+anova(model)
+```
+
+&ensp;
+
+#### d) What is the variation explained (R2)?
+
+The resulting R-squared value indicates that the regression model fits the data well.
+
+```{r}
+summary(model)$r.squared
+```
+
+&ensp;
+
+#### e) Perform a post hoc test
+
+```{r}
+# Perform Tukey's test
+TukeyHSD(aov(value~variable, data=data_long))
+```
+
+
+
+---
+
+
+### **Question 2**
+
+#### Data in growth.txt come from a farm-scale trial of animal diets. There are two factors: diet and supplement. Diet is a factor with three levels: barley, oats and wheat. Supplement is a factor with four levels: agrimore, control, supergain and supersupp. The response variable is weight gain after 6 weeks.
+
+&ensp;
+
+
+
+```{r}
+# Read in data
+data <- read.table("C:\\Users\\hlear\\Desktop\\statsandviz\\R04_anova\\data\\growth.txt", sep = "\t", header = TRUE)
+
+# Explore data
+class(data)
+head(data)
+colnames(data)
+```
+
+&ensp;
+
+#### a) Inspect the data using boxplots
+
+```{r}
+# Create Boxplot
+boxplot(gain~diet, data=data)             # weight gain as a function of diet
+boxplot(gain~supplement, data=data)       # weight gain as a function of supplement
+boxplot(gain~diet+supplement, data=data)  # weight gain for each combination of diet/supplement
+```
+
+&ensp
+
+#### b) Perform a two-way ANOVA
+
+```{r}
+
+anova(lm(gain~diet+supplement, data=data))   # without interaction
+summary(lm(gain~diet+supplement, data=data))$r.squared # for R-squared
+
+anova(lm(gain~diet*supplement, data=data))   # includes interaction
+summary(lm(gain~diet*supplement, data=data))$r.squared # for R-squared
+```
+
+&ensp;
+
+#### (Exploration: Aikaike Information Criterion)
+
+```{r}
+# install.packages("AICcmodavg")
+# library(AICcmodavg)
+
+# Fit the first linear regression model
+two_way <- lm(gain ~ diet + supplement, data = data)
+
+# Extract the AIC value for the first model
+aic_two_way <- AIC(two_way)
+
+# Fit the second linear regression model
+interaction <- lm(gain ~ diet * supplement, data = data)
+
+# Extract the AIC value for the second model
+aic_interaction <- AIC(interaction)
+
+# Compare the AIC values to determine which model is best
+if (aic_two_way < aic_interaction) {
+  cat("The two_way model is better, with AIC =", aic_two_way)
+} else {
+  cat("The interaction model is better, with AIC =", aic_interaction)
+}
+```
+
+&ensp;
+
+#### c) Assess graphically if there exists an interaction between both factors
+
+```{r}
+interaction.plot(data$diet, data$supplement, data$gain)  # supersupp and agrimore intersect at wheat 
+
+interaction.plot(data$supplement, data$diet, data$gain)  # parallel (little to no interaction)
+```
+
+&ensp;
+
+#### d) Given what you learnt about the interaction, what would be a better model?
+The two-way (no interaction) model is better.
+
+&ensp;
+
+#### e) What is the variation explained (R2) of this new model?
+
+```{r}
+anova(lm(gain~diet+supplement, data=data))    # without interaction
+summary(lm(gain~diet+supplement, data=data))$r.squared  # for R-squared
+```
+
+&ensp;
+
+#### f) Perform a Tukey HSD test of this new model
+
+```{r}
+TukeyHSD(aov(gain~diet+supplement, data=data))
+```
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 5: Correlation**
+
+&ensp;
+
+**Packages**
+
+```{r}
+library(corrgram)  # graphical display of a correlation matrix (correlogram)
+library(cowplot)   # creae publication-quality figures with ggplot2
+```
+
+&ensp;
+
+---
+
+### **Question 1**
+
+
+####  In a study of hyena laughter, a researcher investigated whether sound spectral properties of hyenas’ giggles are associated with age.
+
+&ensp;
+
+#### Age(years): 2,2,2,6,9,10,13,10,14,14,12,7,11,11,14,20
+
+#### Frequency (Hz): 840,670,580,470,540,660,510,520,500,480,400,650,460,500,580,500
+
+&ensp;
+
+#### a) Inspect the data using a scatterplot
+#### b) Test the linear association between both variables
+#### c) Assume that the data are not normally distributed, test the linear association using a non-parametric correlation coefficient
+
+&ensp;
+
+---
+
+#### a) Inspect the data using a scatterplot
+
+```{r}
+# Put the data into a data frame for manipulation
+hyena <- data.frame(age = c(2,2,2,6,9,10,13,10,14,14,12,7,11,11,14,20), 
+                    Hz = c(840,670,580,470,540,660,510,520,500,480,400,650,460,500,580,500))
+
+# Explore data
+class(hyena)
+head(hyena)
+colnames(hyena)
+
+# Quick inspection of the data
+# Plot using base R
+plot(hyena)
+```
+
+&ensp;
+
+---
+
+#### b) Test the linear association between both variables
+
+```{r}
+# Hypothesis test on the correlation coefficient
+cor.test(hyena$age, hyena$Hz, method = "pearson")
+
+# Plot using ggplot2
+ggplot(data=hyena, aes(x=age, y=Hz)) +
+  geom_point(size=2.5, alpha=0.4) +
+  geom_smooth(method="lm", se=F, size=1.5, color="firebrick4") +
+  xlab("Age (years)") +
+  ylab("Giggle Frequency (Hz)") +
+  ggtitle("Relationship between hyena age and giggle frequency (Hz)") +
+  theme_cowplot(14)
+```
+
+&ensp;
+
+---
+
+#### c) Test the linear association using a non-parametric correlation coefficient
+
+```{r}
+# Non-parametric rank correlation methods (Spearman, Kendall)
+cor(hyena, method="spearman")
+cor(hyena, method="kendall")
+```
+&ensp;
+
+---
+
+---
+
+## **Problem Set 6: Regression**
+
+&ensp;
+
+### **Question 1**
+
+#### Testosterone is known to predict aggressive behavior and is involved in face shape during puberty. Does face shape predict aggression?  
+
+#### Researchers measured the face width-to-height ratio of 21 university hockey players with the average number of penalty minutes awarded per game for aggressive infractions.Data are available in face.txt.
+
+#### a) How steeply does the number of penalty minutes increase per unit increase in face ratio? Calculate the estimate of the intercept. Write the result in the form of an equation for the line.
+#### b) How many degrees of freedom does this analysis have?
+#### c) What is the t-statistic?
+#### d) What is your final conclusion about the slope?
+#### e) What is the variation explained, R2?
+#### f) Make a scatterplot of the data and include a linear regression line
+#### g) Check the model assumptions
+
+&ensp;
+
+```{r}
+# Libraries
+library(performance) # assess model quality and goodness of fit
+library(see)         # plotting, extras for ggplot2
+
+
+# Read in the data
+face_rawdata <- read.table(file = "R06_regression/data/face.txt", sep = "\t", header = TRUE)
+
+# Explore data
+class(face_rawdata)
+colnames(face_rawdata)
+head(face_rawdata)
+nrow(face_rawdata)
+
+
+
+# Quick scatterplot using base R
+plot(face_rawdata)
+plot(face_rawdata$Face, face_rawdata$Penalty) # Alternative code to assign x and y variables
+
+# Linear model
+face_lm <- lm(Penalty ~ Face, data=face_rawdata)
+summary(face_lm)
+abline(face_lm, col = "red", lwd = 3)  
+
+
+
+# summary(face_lm) tells us answers to a-e.
+# But we can extract each individually and print the answers... if we're so inclined:  
+
+face_slope     <- round(coef(face_lm)[2],3)       
+face_intercept <- round(coef(face_lm)[1],3)  
+face_df        <- face_lm$df.residual
+face_t_value   <- round(summary(face_lm)$coefficients[2, "t value"], 3)
+face_p_value   <- round(summary(face_lm)$coefficients[2, "Pr(>|t|)"], 3)
+face_r_squared <- round(summary(face_lm)$r.squared,3)
+
+
+cat("Answer to questions:", "\n",
+    "a) The equation is: Penalty =", face_intercept, "+", face_slope, "* Face", "\n",
+    "b) Degrees of Freedom:", face_df, "\n",
+    "c) t-value for Face variable:", face_t_value, " (p-value:", face_p_value, ")", "\n",
+    "d) The slope of the relationship between Face and Penalty is positive and statistically significant.", "\n",
+    "e) R-squared:", face_r_squared, "\n")
+
+
+
+# Check model assumptions
+check_model(face_lm)
+```
+
+
+---
+
+### **Question 2**
+
+#### Respiratory rate (Y) is expected to depend on body mass (X) by the power law, Power Law: Y=aX^beta, where beta is the scaling exponent. The data are available in respiratoryrate_bodymass.txt.
+
+#### a) Make a scatterplot of the raw data
+#### b) Make a scatterplot of the linearized relationship. Which transformation did you use?
+#### c) Use linear regression to estimate beta
+#### d) Carry out a formal test of the null hypothesis of beta=0.
+#### e) What is the variation explained, R2?
+#### f) Check the model assumptions
+&ensp;
+
+```{r}
+
+# Read in data
+bodymass <- read.table(file = "R06_regression/data/respiratoryrate_bodymass.txt", sep = "\t", header = TRUE)
+
+# Explore
+class(bodymass)
+colnames(bodymass)
+nrow(bodymass)
+head(bodymass)
+
+
+
+# ========================================
+# Scatterplots ===========================
+# ========================================
+
+# Scatterplot using base R
+plot(bodymass$BodyMass, bodymass$RespiratoryRate, 
+     xlab = "Body Mass", 
+     ylab = "Respiratory Rate")
+
+# Take the logarithm of both variables
+logdata <- log(bodymass)
+
+# Make a scatterplot of the linearized relationship
+plot(logdata$BodyMass, logdata$RespiratoryRate, 
+     xlab = "log(Body Mass)", 
+     ylab = "log(Respiratory Rate)")
+
+
+
+# ==================================================
+# Use linear regression to estimate beta ===========
+# ==================================================
+
+# Fit a linear regression model to the transformed data
+logdata_lm <- lm(logdata$Respiration ~ logdata$BodyMass, data = logdata)
+summary(logdata_lm)
+
+# Extract the coefficient for the BodyMass predictor variable
+logbeta <- coef(logdata_lm)[2]
+# beta <- coef(logdata_lm)["logdata$BodyMass"]      # alternative code
+cat("Logged Beta:", logbeta, "\n")
+
+# Exponentiate the logbeta coefficient to get the beta for the Power Law
+beta <- exp(logbeta)
+cat("Beta:", beta, "\n")
+
+
+
+# Carry out a formal test of the null hypothesis of beta=0.
+# Look at the t-value ???
+summary(logdata_lm)
+summary(logdata_lm)$coefficients
+summary(logdata_lm)$r.squared
+
+
+# Check model assumptions
+library(gvlma)
+check_model(logdata_lm)
+summary(gvlma(logdata_lm))
+```
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 7: Statistical Modeling**
+
+&ensp;
+
+### **Question 1**
+
+#### Use the ozone.txt data to model the ozone concentration as a linear function of wind speed, air temperature and the intensity of solar radiation. Assume that the requirements to perform a linear regression are met.
+
+#### a) Make a multiple panel bivariate scatterplot
+#### b) Perform a multiple linear regression
+#### c) What is the variation explained, R2?
+#### d) Assess the co-linearity of the explanatory variables using the variance inflation factor
+#### e) Check the model assumptions
+
+&ensp;
+
+```{r}
+
+# Libraries
+library(car)         # regression
+
+
+# Read in the data
+ozone <- read.csv(file = "R07_statistical_modeling/data/ozone.txt", sep="\t", header=T)
+
+# Multiple panel bivariate scatterplot
+pairs(ozone)
+
+# Multiple linear regression
+model_lm <- lm(ozone ~ wind + temp + rad, data = ozone)
+
+# R^2
+summary(model_lm)
+
+# Co-linearity using variation inflation factor
+# If any VIF values are >5, then there may be co-linearity issues.
+vif(model_lm)
+
+# Model diagnostics
+check_model(model_lm)
+hist(resid(model_lm), main = "Histogram of Residuals", xlab = "Residuals")
+
+```
+
+
+---
+
+### **Question 2**
+
+#### Use the diminish.txt data (xv is explanatory, yv is response variable) to:  
+
+#### a) Perform a simple linear regression
+#### b) Perform a polynomial (second-degree) regression
+#### c) Compare both models with Akaike’s Information Criterion (AIC). Which model is better?
+#### d) Make a scatterplot of the data and include both regression lines
+
+
+&ensp;
+
+```{r}
+# Read in data
+bodymass <- read.table(file = "R07_statistical_modeling/data/respiratoryrate_bodymass (1).txt", sep = "\t", header = TRUE)
+
+# Explore
+class(bodymass)
+colnames(bodymass)
+nrow(bodymass)
+head(bodymass)
+
+
+
+# ========================================
+# Scatterplots ===========================
+# ========================================
+
+# Scatterplot using base R
+plot(bodymass$BodyMass, bodymass$RespiratoryRate, 
+     xlab = "Body Mass", 
+     ylab = "Respiratory Rate")
+
+# Take the logarithm of both variables
+logdata <- log(bodymass)
+
+# Make a scatterplot of the linearized relationship
+plot(logdata$BodyMass, logdata$RespiratoryRate, 
+     xlab = "log(Body Mass)", 
+     ylab = "log(Respiratory Rate)")
+
+
+
+# ==================================================
+# Use linear regression to estimate beta ===========
+# ==================================================
+
+# Fit a linear regression model to the transformed data
+logdata_lm <- lm(logdata$Respiration ~ logdata$BodyMass, data = logdata)
+summary(logdata_lm)
+
+# Extract the coefficient for the BodyMass predictor variable
+logbeta <- coef(logdata_lm)[2]
+# beta <- coef(logdata_lm)["logdata$BodyMass"]      # alternative code
+cat("Logged Beta:", logbeta, "\n")
+
+# Exponentiate the logbeta coefficient to get the beta for the Power Law
+beta <- exp(logbeta)
+cat("Beta:", beta, "\n")
+
+
+
+# Carry out a formal test of the null hypothesis of beta=0.
+# Look at the t-value ???
+summary(logdata_lm)
+summary(logdata_lm)$coefficients
+summary(logdata_lm)$r.squared
+
+
+# Check model assumptions
+check_model(logdata_lm)
+summary(gvlma(logdata_lm))
+```
+
+---
+
+### **Question 3**
+
+#### The data in stork.txt display the stress-induced corticosterone levels circulating in the blood of European white storks and their survival over the subsequent five years of study.
+
+#### a) Make a scatterplot of the data
+#### b) Which type of regression model is suitable for these data?
+#### c) Perform an appropriate regression to predict survival from corticosterone
+#### d) What is the pseudo-R2 of the model?
+#### e) What is the p-value of the model?
+#### f) Include the predicted curve in the scatterplot
+#### g) Check the model assumptions
+&ensp;
+
+```{r}
+# Libraries
+library(ggeffects)   # predicted probabilities
+
+
+# Load in data
+stork <- read.csv(file = "R07_statistical_modeling/data/stork.txt", sep = "\t", header = T)
+
+
+# Scatterplot
+plot(stork)
+
+ggplot(stork, aes(x = Corticosterone, y = Survival)) +
+  geom_point() +
+  labs(title = "Scatterplot of Corticosterone and Survival",
+       x = "Corticosterone (ng/ml)",
+       y = "Survival (0 = Died, 1 = Survived)")
+
+# Binary, so logistic regression is appropriate. 
+
+# Logistic regression
+model_glm <- glm(Survival ~ Corticosterone, data = stork, family = binomial)
+model_glm
+
+# Pseudo-R2 of the model
+r2(model_glm)
+
+# P-value of the model
+summary(model_glm)
+
+# Plot the predicted probabilities of survival
+predicted <- ggpredict(model_glm, terms = "Corticosterone")
+plot(predicted)
+
+# Plot with logistic regression curve
+ggplot(stork, aes(x = Corticosterone, y = Survival)) +
+  geom_point() +
+  labs(title = "Scatterplot of Corticosterone and Survival",
+       x = "Corticosterone (ng/ml)",
+       y = "Survival (0 = Died, 1 = Survived)") +
+  stat_smooth(method = "glm", method.args = list(family = "binomial"), se = FALSE)
+
+# Model diagnostics
+check_model(model_glm)
+hist(resid(model_glm), main = "Histogram of Residuals", xlab = "Residuals")
+
+```
+
+
+---
+
+### **Question 4**
+
+#### The clusters.txt dataset contains the response variable Cancers (cases per year per clinic) and the explanatory variable Distance (the distance from a nuclear plant to the clinic in kilometers).
+
+#### a) Make a scatterplot of the data
+#### b) Which regression is the more appropriate for these data? (Don’t take overdispersion into account for now)
+#### c) Given your choice, is the trend significant?
+#### d) What is the pseudo-R2 of the model?
+#### e) What is the p-value of the model?
+#### f) Include the predicted relationship from the model in the scatterplot
+#### g) Do you think there might be some evidence of overdispersion?
+#### h) Perform a new generalized linear model with a distribution that better accounts for overdispersion
+#### i) Check this last model assumptions
+
+
+&ensp;
+
+```{r}
+# Libraries
+library(MASS)        # perform negative binomial regression
+
+
+clusters <- read.csv(file = "R07_statistical_modeling/data/clusters.txt", sep = "\t", header = T)
+
+# Make a scatterplot of the data
+ggplot(clusters, aes(x=Distance, y=Cancers)) + geom_point()
+
+# Which regression is the more appropriate for these data?(Don’t take overdispersion into account for now)
+# Since response variable is a count, a Poisson regression model is appropriate.
+
+# Given your choice, is the trend significant?
+# Fit a Poisson regression model
+model_poisson <- glm(Cancers ~ Distance, data=clusters, family=poisson)
+summary(model_poisson)
+# p-value 0.0941 > 0.05 ; not significant
+
+# What is the pseudo-R2 of the model?
+r2(model_poisson)
+
+# Include the predicted relationship from the model in the scatterplot
+ggplot(clusters, aes(x=Distance, y=Cancers)) + 
+  geom_point() + 
+  geom_smooth(method="glm", method.args=list(family="poisson"), se=FALSE)
+
+# Do you think there might be some evidence of overdispersion?
+check_overdispersion(model_poisson)
+
+# Perform a new generalized linear model with a distribution that better accounts for overdispersion
+# Negative binomial regression model
+model_nb <- glm.nb(Cancers ~ Distance, data=clusters)
+summary(model_nb)
+
+# Check this last model assumptions
+# Model diagnostics
+check_model(model_nb)
+hist(resid(model_nb), main = "Histogram of Residuals", xlab = "Residuals")
+
+
+```
+
+
+---
+
+### **Question 5**
+
+#### Use the jaws.txt data to:
+#### a) Make a scatterplot of the data (age explanatory, bone response)
+#### b) Perform a non-linear regression assuming an asymptotic exponential relationship:
+####   y=a(1-e^(-cx))
+#### c) Perform a non-linear regression assuming a Michaelis-Menten model:
+####   y=ax/(1+bx)
+#### d) Estimate the percentage of variation explained by both models (comparing them with a null model with only a constant) 
+#### e) Compare both models with Akaike’s Information Criterion (AIC). Which model is better?
+#### f) Make a scatterplot of the data and include both regression lines
+
+&ensp;
+
+```{r}
+# Read in data
+jaws <- read.csv(file = "R07_statistical_modeling/data/jaws.txt", sep = "\t", header = T)
+
+# a) Make a scatterplot of the data (age explanatory, bone response)
+ggplot(jaws, aes(x = age, y = bone)) +
+  geom_point() +
+  labs(x = "Age (years)", y = "Bone length (mm)",
+       title = "Scatterplot of age vs. bone length")
+
+
+# b) Perform a non-linear regression assuming an asymptotic exponential relationship:
+#   y=a(1-e^(-cx))
+
+# "a" is the estimated maximum bone length
+range(jaws$bone) # 142
+
+# Regression to get the "c" starting value
+jaws_lm <- lm(bone ~ age, data = jaws)
+summary(jaws_lm) # slope = 1.642
+
+# The starting value for parameter c is estimated by taking the reciprocal 
+# of the slope of the linear regression between age and bone length.
+# c = 1/1.642 = 0.6088
+exp_model <- nls(bone ~ a*(1-exp(-c*age)), data = jaws, start = list(a = 142, c = 0.6088))
+summary(exp_model)
+
+# c) Perform a non-linear regression assuming a Michaelis-Menten model:
+#   y=ax/(1+bx)
+mm_model <- nls(bone ~ a*age/(1+b*age), data = jaws, start = list(a = 142, b = 0.6088))
+summary(mm_model)
+
+
+# d) Estimate the percentage of variation explained by both models 
+# (comparing them with a null model with only a constant) 
+null_model <- lm(bone ~ 1, data = jaws)
+1 - (sum(residuals(exp_model)^2)/sum(residuals(null_model)^2))
+1 - (sum(residuals(mm_model)^2)/sum(residuals(null_model)^2))
+
+# e) Compare both models with Akaike’s Information Criterion (AIC). 
+# Which model is better?
+AIC(exp_model)
+AIC(mm_model) # higher AIC
+
+# f) Make a scatterplot of the data and include both regression lines
+ggplot(jaws, aes(x = age, y = bone)) +
+  geom_point() +
+  labs(x = "Age (years)", y = "Bone length (mm)", 
+       title = "Scatterplot of age vs. bone length") +
+  geom_smooth(method = "nls", 
+              formula = y ~ a*(1-exp(-c*x)), 
+              se = FALSE, 
+              method.args = list(start = c(a = 140, c = 0.1)), 
+              color = "red") +
+  geom_smooth(method = "nls", 
+              formula = y ~ a*x/(1+b*x), 
+              se = FALSE, 
+              method.args = list(start = c(a = 100, b = 0.01)), 
+              color = "blue") +
+  theme_bw()
+
+
+# Alternative code
+# f) Make a scatterplot of the data and include both regression lines
+
+# Create predicted values for both models
+jaws$exp_pred <- predict(exp_model)
+jaws$mm_pred <- predict(mm_model)
+
+# Create scatterplot with both regression lines
+ggplot(jaws, aes(x = age, y = bone)) +
+  geom_point() +
+  geom_line(aes(y = exp_pred), color = "blue") +
+  geom_line(aes(y = mm_pred), color = "red") +
+  labs(x = "Age (years)", y = "Bone length (mm)",
+       title = "Regression lines for age vs. bone length",
+       color = "Model") +
+  scale_color_manual(values = c("blue", "red"), labels = c("Exponential", "Michaelis-Menten"))
+
+```
+
+---
+
+### **Question 6**
+
+#### In a recent paper we read: 
+#### “Linear mixed effects modelling fit by restricted maximum likelihood was used to explain the variations in growth. The linear mixed effects model was generated using the lmer function in the R package lme4, with turbidity, temperature, tide, and wave action set as fixed factors and site and date set as random effects”. 
+
+#### Write down the R code to recreate their model.
+
+
+&ensp;
+
+```{r}
+# # Load libraries
+# library(lme4)
+# 
+# # Load data into dataframe. Let's call it "data"...
+# data <- read.table("data.txt", sep = "\t", header = T)
+# 
+# # Generate the linear mixed effects model 
+# # with turbidity, temperature, tide, and wave action as fixed factors
+# # and site and date as random effects
+# model <- lmer(growth ~ turbidity + temperature + tide + wave_action + (1 | site) + (1 | date), data = data)
+# 
+# # Output
+# summary(model)
+
+```
+
+
+---
+
+### **Question 7**
+
+#### Researchers at the University of Arizona want to assess the germination rate of saguaros using a factorial design, with 3 levels of soil type (remnant, cultivated and restored) and 2 levels of sterilization (yes or no). 
+
+#### The same experimental design was deployed in 4 different greenhouses. Each of the unique treatments was replicated in 5 pots. 6 seeds planted in each pot.
+
+#### a) How many fixed treatments (unique combinations) exist?
+#### b) What is the total number of pots?
+#### c) What is the total number of plants measured?
+#### d) Write the R code that you would use to analyze these data 
+
+&ensp;
+
+```{r}
+# a) 
+# 3 soil types and 2 levels of sterilization 
+# 3 x 2 = 6 fixed treatments
+
+# b) 
+# 6 fixed treatments, Replicated in 5 pots, 4 different greenhouses 
+# 6 x 5 x 4 = 120 total number of pots
+
+# c) 
+# 6 seeds planted in each pot, 120 pots in total 
+# 6 x 120 = 720 total number of plants.
+
+# d) 
+# R code to analyze these data:
+
+# Load libraries
+library(dplyr)
+library(lme4)
+
+# Create a data frame with the experimental design
+saguaros <- expand.grid(soil_type = c("remnant", "cultivated", "restored"),
+                        sterilization = c("yes", "no"),
+                        greenhouse = 1:4,
+                        pot = 1:5)
+
+# Simulate germination data for each treatment
+set.seed(123)
+germination <- data.frame(treatment = 1:nrow(saguaros),
+                          germination = rbinom(nrow(saguaros), 6, 0.5))
+
+# Combine the design and germination data frames
+data <- cbind(saguaros, germination)
+
+# Fit the mixed-effects logistic regression model
+mixed_effects <- glmer(germination/6 ~ soil_type * sterilization + (1 | greenhouse/pot),
+                       data = data, family = binomial())
+
+# Summarize the results
+summary(mixed_effects)
+
+```
+
+---
+
+### **Question 8**
+
+#### Check the hypothetical data from 4 subjects relating number of previous performances to negative affect.  
+
+#### a) What does the thick dashed black line represent?
+Overall relationship (positive) between previous performances and negative affect based on multilevel model  
+
+#### b) What is depicting the solid black line?
+Overall relationship (negative) between previous performances and negative affect based on linear least squares regression model. Intercept is average of the four subjects.  
+
+#### c) What do the 4 thin dashed lines represent?
+Relationship between previous performances and negative affect for each subject (same slope but different intercepts).
+
+&ensp;
+
+---
+
+### **Question 9**
+
+#### 9. Dragons:
+
+
+&ensp;
+
+```{r}
+# Load data
+dragons_data <- load("R07_statistical_modeling/data/dragons.RData")
+
+# Explore data
+str(dragons)      # structure
+summary(dragons)  # summary
+
+
+# a) Perform a simple linear regression with testScore as response and bodyLength as explanatory
+dragons_lm <- lm(testScore ~ bodyLength, data = dragons)
+summary(dragons_lm)
+
+
+# b) Plot the data with ggplot2 and add a linear regression line with confidence intervals. Hint: geom_smooth()
+library(ggplot2)
+
+ggplot(dragons, aes(x = bodyLength, y = testScore)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = TRUE)
+
+
+# c) We collected multiple samples from 8 mountain ranges. Generate a boxplot using (or not) ggplot2 to explore this new explanatory variable
+ggplot(dragons, aes(x = mountainRange, y = testScore)) +
+  geom_boxplot()
+
+
+# d) Now repeat the scatterplot in b) but coloring by mountain range and without linear regression line
+ggplot(dragons, aes(x = bodyLength, y = testScore, color = mountainRange)) +
+  geom_point()
+
+
+# e) Instead of coloring, use facet_wrap() to separate by mountain range
+ggplot(dragons, aes(x = bodyLength, y = testScore)) +
+  geom_point() +
+  facet_wrap(~ mountainRange)
+
+
+# f) Perform a new linear model adding mountain range and assuming that it is fixed effects
+dragons_lm_fixed <- lm(testScore ~ bodyLength + mountainRange, data = dragons)
+summary(dragons_lm_fixed)
+
+
+# g) Perform the same linear model as before but now assuming mountain range is random effects
+library(lme4)
+
+dragons_lm_random <- lmer(testScore ~ bodyLength + (1|mountainRange), data = dragons)
+summary(dragons_lm_random)
+
+
+# h) How much of the variation in test scores is explained by the random effect (mountain range)
+VarCorr(dragons_lm_random)
+
+
+# i) Estimate the R2 (conditional and marginal) of the mixed-effects model
+library(performance)
+
+performance::r2(dragons_lm_random)
+
+
+# j) Check this last model assumptions
+library(DHARMa) #model diagnostics for glm
+simulateResiduals(dragons_lm_random, plot = T)
+
+# k) Include the fitted lines for each mountain range (plot from e). [Hint: predict function within geom_line layer]
+dragons$predicted <- predict(dragons_lm_random, re.form = NA)
+
+ggplot(dragons, aes(x = bodyLength, y = testScore)) +
+  geom_point() +
+  geom_line(aes(y = predicted, group = mountainRange), color = "blue") +
+  facet_wrap(~ mountainRange)
+
+```
+
+---
+
+### **Question 10**
+
+#### Data in Estuaries.csv correspond to counts of invertebrates at 3-4 sites in each of 7 (randomly chosen) estuaries.
+
+
+&ensp;
+
+```{r}
+# Load data
+estuaries <- read.csv(file = "R07_statistical_modeling/data/Estuaries.csv", header = T)
+head(estuaries)
+
+# a) Fit a linear mixed model with Total as response and Modification as explanatory, controlling for Estuary
+estuary.lme <- lmer(Total~Modification+(1|Estuary), data=estuaries)
+
+# b) Estimate the R2 (conditional and marginal) of this model
+r2(estuary.lme)
+
+# c) Plot the data with ggplot2 in a way that helps you understand the different effects
+# jitterplot with the effects of estuaries
+ggplot(estuaries, aes(x = Modification, y = Total, color = Estuary)) +
+  geom_point() +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3) +
+  labs(title = "Total Invertebrates by Modification and Estuary")
+
+ggplot(estuaries, aes(x = Modification, y = Total)) +  
+  geom_boxplot()+  
+  geom_jitter(aes(color=Estuary))
+
+
+# d) Include the variable Site as a random effect. 
+# Do you think this corresponds to a crossed or a nested design? 
+# Fit the linear mixed model with Site as a random effect
+model_site <- lmer(Total ~ Modification + (1 | Estuary) + (1 | Estuary:Site), data = estuaries)
+    # Nested design because each site is nested within a specific estuary.
+
+
+# e) What are the R2 (conditional and marginal) of the model including Site
+r2(model_site)
+
+
+# f) Check the model assumptions
+library(DHARMa)
+simulateResiduals(model_site, plot = T)
+
+# g) Plot the data trying to include Site
+ggplot(estuaries, aes(x=Site, y=Total, fill=Modification))+
+  geom_boxplot()+
+  geom_point()+
+  facet_grid(~Estuary)
+
+ggplot(estuaries, aes(x = Modification, y = Total, color = Estuary)) +
+  geom_point(aes(shape = factor(Site)), size = 3) +
+  labs(title = "Total Invertebrates by Modification, Estuary, and Site") +
+  scale_shape_discrete(name = "Site")
+
+
+# h) Transform the variable Hydroid to presence/absence data
+estuaries$Hydroid <- ifelse(estuaries$Hydroid==0, 0 , 1) # Not recommended since it changes the raw data
+
+# i) Fit a generalized linear mixed model (GLMM) with this transformed variable as Response and the same fixed and random effects as in d). [Hint: function glmer]
+hydroid.GLM <- glmer(Hydroid~Modification + (1|Estuary/Site), data = estuaries, family = "binomial")
+summary(hydroid.GLM)
+
+# j) Check the model assumptions
+simulateResiduals(hydroid.GLM, plot = T)
+r2(hydroid.GLM)
+
+```
+
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 8: Time Series and Spatial Analysis**
+
+&ensp;
+
+### **Question 1**
+
+#### Write a function to calculate the 3-point moving average for an input vector. 
+#### The formula is: y_i^'=  (y_(i-1)+y_i+y_(i+1))/3
+
+&ensp;
+
+```{r}
+
+moving_average <- function(x) {
+  n <- length(x)
+  y <- numeric(n) # Initialize an empty vector to store the moving average values
+  
+  for (i in 2:(n - 1)) {
+    y[i] <- (x[i - 1] + x[i] + x[i + 1]) / 3
+  }
+  
+  return(y)
+}
+
+# Example:
+input_vector <- c(1, 2, 3, 4, 5, 6, 7)
+result <- moving_average(input_vector)
+print(result)
+
+
+```
+
+
+---
+
+### **Question 2**
+
+#### Read the temp.txt file. The data correspond to monthly average temperatures. Time series analysis:
+
+&ensp;
+
+```{r}
+# Load packages
+library(TTR)
+library(forecast)
+
+# 2. Read the temp.txt file. The data correspond to monthly average temperatures.
+temp<-read.table("R08_timeseries_spatialanalysis/temp.txt", header=T)
+
+# a) Plot the time series data. [Hint: first you need to create a monthly time series object]
+temp_ts<-ts(temp$temps, frequency=12) 
+plot(temp_ts)
+
+# b) Calculate the 5-point moving average and plot it together with the time series
+temp_ma<-SMA(temp_ts, n = 5)
+lines(temp_ma, col="red", lwd=2)
+
+# c) Decompose the time series into seasonal, trend and residual error components
+temp_decomp<-decompose(temp_ts)
+plot(temp_decomp)
+
+# d) Generate a temporal correlogram to assess the autocorrelation of the time series
+acf(temp_ts)
+
+# e) Generate a new correlogram but removing the trend and seasonal variation
+acf(temp_decomp$random[!is.na(temp_decomp$random)])
+
+# f) Find the best ARIMA model using the forecast package
+temp_fit<-auto.arima(temp_ts)
+summary(temp_fit)
+checkresiduals(temp_fit)
+
+# g) Estimate future values using the previous ARIMA model and plot the results
+temp_fcast<-forecast(temp_fit)
+plot(temp_fcast)
+```
+
+---
+
+### **Question 3**
+
+#### Love for Spain
+
+```{r}
+# Load packages
+library(maps)
+library(ggplot2)
+library(viridis)
+
+# Download the map of Spain.
+spain_map<-map_data("world", region="spain")
+
+# a) Make a basic map of Spain
+ggplot(spain_map) +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = subregion)) +
+  theme_bw()
+
+# b) Get information on the population of Spanish cities 
+# and make a map of Spain including the locations and population of Spanish cities.
+cities<-get('world.cities')
+head(cities)
+cities_spain<-cities[cities$country.etc == 'Spain',]
+
+ggplot(spain_map) +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = subregion)) +
+  geom_point(data = cities_spain, aes(x = long, y = lat), size = 0.1) +
+  theme_bw()
+
+ggplot(spain_map) +
+  geom_polygon(aes(x = long, y = lat, group = group), fill = 'lightgray', color = "black", size = 0.1) +
+  geom_point(data = cities_spain, aes(x = long, y = lat, size = pop, color = pop), alpha = 0.8) +
+  scale_size_continuous(range = c(1, 12)) +
+  scale_color_viridis(trans = "log") +
+  theme_void()
+```
+
+
+---
+
+### **Question 4**
+
+#### Download GBIF georeferenced occurrence data of the Pyrenean desman (Galemys pyrenaicus) and make a map of its geographical distribution 
+
+
+&ensp;
+
+```{r}
+# Load packages
+library(rgbif)
+
+# Download from GBIF
+desman_gbif<-occ_search(scientificName = "Galemys pyrenaicus", hasCoordinate = T)
+
+# Convert to data frame
+desman<-as.data.frame(desman_gbif$data[,c("decimalLatitude", "decimalLongitude")])
+
+# Download maps for geographical distribution
+southEU_map<-map_data("world", region=c("Spain", "Portugal", "France", "Andorra"))
+
+# Plot distribution
+ggplot(southEU_map)+
+  geom_polygon(aes(x = long, y = lat, group=group), fill="lightgray")+
+  geom_point(data=desman, aes(x=decimalLongitude, y=decimalLatitude), color="red", alpha=0.4, size=2)+
+  theme_bw()
+```
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 9: Diversity Analysis **
+
+&ensp;
+
+### **Question 1**
+
+#### Diversity Analysis basics
+
+&ensp;
+
+```{r}
+
+# Load the dune_bio.txt dataset. 
+# Species should be in columns and sites in rows.
+dune <-read.table("R09_diversity_analysis/data/dune_bio.txt", header=T)
+head(dune)
+
+# Load packages
+library(vegan)
+
+# a) Calculate the total number of individuals of all species
+sum(dune)
+
+# b) Calculate the total number of individuals for each species
+colSums(dune)
+
+# c) Calculate the average number of individuals for each species
+colMeans(dune)
+
+# d) Calculate the total number of individuals for each site
+rowSums(dune)
+
+# e) Calculate the average number of individuals for each site
+rowMeans(dune)
+
+# f) Function to report the median number of individuals for each species and each site
+median_sps_sites<-function(x){
+  cat("The median number of inds per sp is", apply(x, 2, median), "and for sites is", apply(x, 1, median))
+}
+
+# Median number of individuals for each species
+median_sps_sites(dune)
+
+# g) Transform the dataset to relative abundances using decostand()
+dune_relabun <-decostand(dune, method = "total")
+rowSums(dune_relabun)
+
+# h) Standardize the dataset into the range 0 to 1 using decostand()
+dune_range<-decostand(dune, method = "range")
+
+# i) Standardize the dataset to mean=0 and variance=1 using decostand()
+dune_stand<-decostand(dune, method = "standardize")
+
+
+
+```
+
+
+---
+
+### **Question 2**
+
+#### Write a function to calculate the observed richness of a vector representing the abundances of different species in a community.
+
+&ensp;
+
+```{r}
+richness <- function(abundances) {
+  sum(abundances > 0)
+}
+
+
+# Test
+abundances <- c(0, 2, 0, 1, 4, 0, 3) # abundances of diff species
+
+richness(abundances) # four species with >0 abundances
+
+```
+
+---
+
+### **Question 3**
+
+#### Write a function to calculate the Shannon-Wiener diversity index of a vector representing the abundances of different species in a community.
+
+```{r}
+shannon_diversity <- function(abundances) {
+  abundances <- abundances[abundances > 0]  # Filter out zero abundance values
+  prop <- abundances / sum(abundances)  # Calculate proportion of each species
+  log_prop <- log(prop)  # Take the natural logarithm of each proportion
+  -sum(prop * log_prop)  # Calculate the Shannon-Wiener index
+}
+
+abundances <- c(5, 2, 0, 1, 4, 5, 3)
+shannon_diversity(abundances)
+```
+
+
+---
+
+### **Question 4**
+
+#### Write a function that calculates both the observed richness and the Shannon-Wiener diversity index for each community in a matrix, and writes an output table with the results. 
+
+#### You can use the vegan built-in functions. 
+#### Test your function with the dune_bio.txt dataset.
+
+
+&ensp;
+
+```{r}
+diversity_summary <- function(community_matrix) {
+  # Calculate observed richness
+  richness <- apply(community_matrix, 1, function(row) sum(row > 0))
+  
+  # Calculate Shannon-Wiener diversity index
+  shannon_wiener <- apply(community_matrix, 1, function(row) {
+    # Use the vegan built-in function to calculate Shannon-Wiener diversity index
+    diversity(row, index = "shannon")
+  })
+  
+  # Create an output table with the results
+  output_table <- data.frame(Observed_Richness = richness,
+                             Shannon_Wiener = shannon_wiener)
+  
+  return(output_table)
+}
+
+
+# Test with dune.bio dataset
+dune <- read.table("R09_diversity_analysis/data/dune_bio.txt", header = T)
+head(dune)
+
+
+diversity_summary(dune)
+```
+
+---
+
+### **Question 5**
+
+#### Make a rank-abundance curve using the second site (13) of the dune_bio.txt dataset. Fit a lognormal model to the data.
+
+&ensp;
+
+```{r}
+dune <- read.table("R09_diversity_analysis/data/dune_bio.txt", header = T)
+head(dune)
+
+#Rank-abundance curves
+plot(rad.lognormal(dune[2,]), lty=2, lwd=2)
+rad.lognormal(dune[2,])
+plot(radfit(dune[2,]))
+radfit(dune[2,])
+
+```
+
+---
+
+### **Question 6**
+
+#### Create a Euclidean distance matrix after standardization using the first (A1), second (Moisture) and fifth (Manure) variables of dune_env.txt. Then create a Bray-Curtis distance matrix using dune_bio.txt. Perform a Mantel test on both distance matrices and plot the relationship.
+
+```{r}
+shannon_diversity <- function(abundances) {
+  abundances <- abundances[abundances > 0]  # Filter out zero abundance values
+  prop <- abundances / sum(abundances)  # Calculate proportion of each species
+  log_prop <- log(prop)  # Take the natural logarithm of each proportion
+  -sum(prop * log_prop)  # Calculate the Shannon-Wiener index
+}
+
+abundances <- c(5, 2, 0, 1, 4, 5, 3)
+shannon_diversity(abundances)
+```
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 10: Cluster Analysis **
+
+&ensp;
+
+### **Question 1**
+
+#### Make dendrograms of the results of hierarchical clustering using the single, average and complete methods. Use the dune_bio.txt dataset after creating a Bray-Curtis distance matrix.
+
+
+&ensp;
+
+```{r}
+
+dune_bio <- read.table("R10_cluster_analysis/data/dune_bio.txt", sep="\t", header = T, row.names = 1)
+head(dune_bio)
+
+#Hierarchical clustering
+dune_bray<-vegdist(dune_bio, method="bray")
+
+clust_single<-hclust(dune_bray, method="single")
+clust_avg<-hclust(dune_bray, method="average")
+clust_complete<-hclust(dune_bray, method="complete")
+
+plot(clust_single) #dendrogram (tree) visualization
+plot(clust_avg)
+plot(clust_complete)
+
+```
+
+
+---
+
+### **Question 2**
+
+#### Perform k-means partitions from 2 to 6 on the dune_bio.txt dataset and select the best partition using the Calinski criterion. Visualize the results.
+
+
+&ensp;
+
+```{r}
+# Read in data
+dune_bio <- read.table("R10_cluster_analysis/data/dune_bio.txt", sep="\t", header = T, row.names = 1)
+head(dune_bio)
+
+# Load packages
+library(vegan)       # cluster analysis
+library(tidyverse)   # data manipulation
+library(fpc)         # calinski criterion
+
+# Calculate the Bray-Curtis distance matrix
+distance_matrix <- vegdist(dune_bio, method = "bray")
+
+# Create an empty list to store k-means models
+kmeans_models <- list()
+calinski_scores <- c()
+
+# Iterate through k = 2 to 6
+for (k in 2:6) {
+  # Perform k-means clustering using the distance matrix
+  model <- kmeans(distance_matrix, centers = k)
+  
+  # Store the model in the list
+  kmeans_models[[k - 1]] <- model
+  
+  # Calculate dissimilarity sums of squares between and within clusters
+  cluster_diss <- cluster.stats(distance_matrix, model$cluster)
+  
+  # Calculate the Calinski-Harabasz index
+  calinski <- cluster_diss$ch
+  calinski_scores <- c(calinski_scores, calinski)
+}
+
+# Find the optimal number of clusters with the highest Calinski-Harabasz index
+optimal_k <- which.max(calinski_scores) + 1
+
+# Select the best k-means model
+best_kmeans_model <- kmeans_models[[optimal_k - 1]]
+
+# Output the optimal number of clusters and the best k-means model
+optimal_k
+best_kmeans_model
+
+
+```
+
+
+&ensp;
+
+---
+
+---
+
+## **Problem Set 11: Ordination **
+
+&ensp;
+
+### **Question 1**
+
+#### Load the varechem dataset within the R package vegan. This data frame collects soil characteristics. Do the following:
+
+&ensp;
+
+```{r}
+
+library(vegan)
+
+# Load the varechem dataset
+data(varechem)
+
+# View
+head(varechem)
+
+
+# Given the nature of this dataset perform a PCA or a CA ordination analysis.
+varechem.pca <- rda(varechem)
+
+
+# a) How much variation is explained by the two first axes?
+
+# eigenvalues of the PCA
+eigenvalues <- varechem.pca$CA$eig
+
+# proportion of variation explained by each axis
+summary(varechem.pca)
+(prop.var <- round(eigenvalues/sum(eigenvalues)*100, 1))
+
+# b) Make a screeplot of the results
+plot(prop.var, type = "b", xlab = "Principal component", ylab = "Proportion of variance", main = "Screeplot of PCA")
+
+
+# c) Plot the ordination results of the sites
+plot(varechem.pca, type = "n")
+text(varechem.pca, display = "sites", cex = 0.7)
+
+# d) Plot both the sites scores and the soil characteristics scores focusing on the soil variables
+biplot(varechem.pca, scaling = 2)
+
+```
+
+
+---
+
+### **Question 2**
+
+#### The dune_bio.txt dataset corresponds to species abundances. Given the nature of this dataset perform a PCA or a CA ordination analysis.
+
+&ensp;
+
+```{r}
+# Read in data
+dune_bio <- read.table("R10_cluster_analysis/data/dune_bio.txt", sep="\t", header = T, row.names = 1)
+
+# Load vegan library
+library(vegan)
+
+# Perform CA
+dune.ca <- cca(dune_bio)
+
+# a) How much variation is explained by the two first axes?
+# Proportion of variation explained by each axis
+summary(dune.ca)
+
+# b) Make a screeplot of the results
+screeplot(dune.ca)
+
+# c) Plot the ordination results of the sites
+plot(dune.ca, display = "sites")
+
+```
+
+---
+
+### **Question 3**
+
+#### Perform a nonmetric multidimensional scaling (NMDS) on the dune_bio.txt dataset after calculating Bray-Curtis distances among sites.
+
+
+```{r}
+# Read in data
+dune_bio <- read.table("R11_ordination/data/dune_bio.txt", sep="\t", header = T, row.names = 1)
+
+# Calculate Bray-Curtis dissimilarity matrix
+dune_dist <- vegdist(dune_bio, method = "bray")
+
+# Perform NMDS
+set.seed(123)
+dune_nmds <- metaMDS(dune_dist, k = 2, trymax = 100)
+
+# a) What is the stress?
+dune_nmds$stress
+
+# b) Make a Shepard plot of the NMDS results
+stressplot(dune_nmds)
+
+
+# c) Plot the ordination results of the sites
+plot(dune_nmds, display = "sites")
+
+# d) [Advanced – ggplot2] Plot the ordination results using ggplot2. 
+#    Use the dune_env.txt dataset to make the size of the points 
+#    proportional to the site richness (number of species) and 
+#    the color to represent the variable Management.
+
+# Load ggvegan package
+library(ggvegan)
+
+# Load data
+dune_env <- read.table("R11_ordination/data/dune_env.txt", sep="\t", header = T, row.names = 1)
+
+# Extract site scores from NMDS object and name columns
+dune_scores <- data.frame(NMDS1 = dune_nmds$points[,1], NMDS2 = dune_nmds$points[,2])
+
+# Add site richness and Management variables
+dune_scores$Richness <- rowSums(dune_bio > 0)
+dune_scores$Management <- dune_env$Management
+
+# Plot using ggplot2
+ggplot(dune_scores, aes(x = NMDS1, y = NMDS2)) +
+  geom_point(aes(size = Richness, color = Management)) +
+  scale_color_manual(values = c("black", "red", "blue", "green")) +
+  labs(x = "NMDS1", y = "NMDS2", size = "Richness", color = "Management") +
+  theme_bw()
+
+```
+
+
+---
+
+### **Question 4**
+
+#### Perform a constrained correspondence analysis (CCA) on the dune_bio.txt dataset using the first (A1), second (Moisture) and fifth (Manure) variables of dune_env.txt as explanatory.
+
+
+&ensp;
+
+```{r}
+# Load packages
+library(vegan)
+
+# Read in data
+dune_bio <- read.table("R11_ordination/data/dune_bio.txt", sep="\t", header = T, row.names = 1)
+
+# Perform CCA
+dune_cca <- cca(dune_bio ~ A1 + Moisture + Manure, data = dune_env)
+
+# a) Variation explained by first two constrained axes
+dune_cca$CCA
+
+# b) Adjusted R2 of the model
+RsquareAdj(dune_cca)$adj.r.squared
+
+# c) Permutation test for overall statistical significance
+anova(dune_cca)
+
+# d) Permutation test for marginal statistical significance of explanatory variables
+anova(dune_cca, by="margin")
+
+# e) Triplot of ordination results focusing on sites
+plot(dune_cca, display = "sites")
+```
+
+---
+
+### **Question 5**
+
+#### Perform a permutational multivariate analysis of variance (PERMANOVA) with 9,999 permutations using the dune_bio.txt dataset after calculating Bray-Curtis distances and the first (A1), second (Moisture) and fifth (Manure) variables of dune_env.txt as explanatory.
+
+&ensp;
+
+```{r}
+# Load packages
+library(vegan)
+
+# Read in data
+dune_bio <- read.table("R11_ordination/data/dune_bio.txt", sep = "\t", header = TRUE, row.names = 1)
+dune_env <- read.table("R11_ordination/data/dune_env.txt", sep = "\t", header = TRUE)
+
+# Convert Use variable to a factor
+dune_env$Use <- factor(dune_env$Use)
+
+# Calculate Bray-Curtis distances
+dune_bc <- vegdist(dune_bio, method = "bray")
+
+# Perform PERMANOVA with A1, Moisture, and Manure as explanatory variables
+dune_perm <- adonis2(dune_bc ~ A1 + Moisture + Manure, data = dune_env, permutations = 9999)
+
+# a) Which explanatory variables are significant?
+print(summary(dune_perm))
+
+# b) What is the explanatory power (R2) of the significant variables?
+print(dune_perm$R2)
+
+# c) Perform a new PERMANOVA analysis with 9,999 permutations 
+# with A1 as the explanatory variable but constrain the permutations within the Use variable.
+dune_perm2 <- adonis2(dune_bc ~ A1, data = dune_env, permutations = 9999, strata = dune_env$Use)
+
+# Print results of PERMANOVA with constrained permutations
+print(summary(dune_perm2))
+
+
+# d) Plot a NMDS ordination to visually confirm your results in c).
+# ggplot2 extension to plot ordination:
+# https://github.com/gavinsimpson/ggvegan
+# install.packages("remotes")
+# remotes::install_github("gavinsimpson/ggvegan")
+# library(ggvegan)
+# library(ggfortify)
+# autoplot(dune_perm2)
+
+# That didn't work, so...
+
+
+# d) Plot a NMDS ordination to visually confirm your results in c).
+# Perform NMDS ordination
+dune_nmds <- metaMDS(dune_bio, distance = "bray")
+
+# Add environmental variables to the ordination plot
+ordiplot(dune_nmds, display = "sites", type = "n")
+points(dune_nmds, display = "sites", col = as.numeric(dune_env$Use), pch = 16)
+ordiellipse(dune_nmds, dune_env$A1, kind = "se", conf = 0.95, label = TRUE)
+
+# Add title and legend to the plot
+title(main = "NMDS Ordination with A1 as Explanatory Variable")
+legend("bottomright", legend = levels(dune_env$Use), col = 1:length(levels(dune_env$Use)), pch = 16, title = "Use")
+
+```
+
+
+&ensp;
+
+---
+
+## **Session Info**
+
+&ensp;
+
+```{r}
+
+sessionInfo()
+
+```
+
+
+
+

@@ -37,27 +37,28 @@ library(tidyr)
 library(ggplot2)
 library(lme4)
 
+
 # Create a data frame with the experimental design
 saguaros <- expand.grid(soil_type = c("remnant", "cultivated", "restored"),
-                      sterilization = c("yes", "no"),
-                      greenhouse = 1:4,
-                      pot = 1:5)
+                        sterilization = c("yes", "no"),
+                        greenhouse = 1:4,
+                        pot = 1:5)
 
 # Simulate germination data for each treatment
 set.seed(123)
-germination <- data.frame(treatment = 1:(nrow(saguaros)),
+germination <- data.frame(treatment = 1:nrow(saguaros),
                           germination = rbinom(nrow(saguaros), 6, 0.5))
 
 # Combine the design and germination data frames
 data <- cbind(saguaros, germination)
 
-
 # Fit the mixed-effects logistic regression model
-mixed_effects <- glmer(germination ~ soil_type * sterilization + (1 | greenhouse/pot),
+mixed_effects <- glmer(germination/6 ~ soil_type * sterilization + (1 | greenhouse/pot),
                        data = data, family = binomial())
 
 # Summarize the results
 summary(mixed_effects)
+
 
 
 
